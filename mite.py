@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
@@ -15,12 +15,16 @@ from tkcalendar import DateEntry
 import pygame
 import sys
 from dateutil import parser as date_parser
+import pandas as pd
+import openpyxl
+from openpyxl.styles import Font, PatternFill
+from openpyxl.utils import get_column_letter
 
 class TickActivityMonitor:
     def __init__(self, root):
         self.root = root
         self.root.title("Монитор активности клещей - Тюмень")
-        self.root.geometry("1100x750")
+        self.root.geometry("1200x800")
         
         # Инициализация звука
         pygame.mixer.init()
@@ -48,6 +52,7 @@ class TickActivityMonitor:
         
         # Данные
         self.data_file = "tick_data.json"
+        self.excel_file = "tick_stats.xlsx"
         self.default_data = {
             "current_week": {"cases": 0, "risk_level": "Нет данных", "date": ""},
             "previous_week": {"cases": 0, "risk_level": "Нет данных", "date": ""},
@@ -55,6 +60,9 @@ class TickActivityMonitor:
             "last_update": "никогда"
         }
         self.data = self.default_data.copy()
+        
+        # Инициализация Excel файла
+        self.init_excel()
         
         # Создание интерфейса
         self.create_widgets()
@@ -66,12 +74,116 @@ class TickActivityMonitor:
         # Воспроизведение фоновой музыки
         self.play_background_sound()
 
+    def init_excel(self):
+        """Инициализация Excel файла с нужными колонками"""
+        if not os.path.exists(self.excel_file):
+            df = pd.DataFrame(columns=[
+                "Дата", "Количество случаев", "Уровень риска", 
+                "Источник", "Заголовок", "Ссылка"
+            ])
+            df.to_excel(self.excel_file, index=False, engine='openpyxl')
+            
+            # Добавляем форматирование
+            self.format_excel_file()
+
+    def format_excel_file(self):
+        """Добавляем форматирование в Excel файл"""
+        try:
+            wb = openpyxl.load_workbook(self.excel_file)
+            ws = wb.active
+            
+            # Форматирование заголовков
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="4F81BD", end_color="4F81BD", fill_type="solid")
+            
+            for col in range(1, ws.max_column + 1):
+                cell = ws.cell(row=1, column=col)
+                cell.font = header_font
+                cell.fill = header_fill
+                ws.column_dimensions[get_column_letter(col)].width = 20
+                
+            # Автофильтр
+            ws.auto_filter.ref = ws.dimensions
+            
+            wb.save(self.excel_file)
+            wb.close()
+        except Exception as e:
+            print(f"Ошибка при форматировании Excel: {str(e)}")
+
+    def save_to_excel(self, data):
+        """Сохранение данных в Excel файл"""
+        try:
+            # Читаем существующие данные
+            df_existing = pd.read_excel(self.excel_file, engine='openpyxl')
+            
+            # Создаем DataFrame из новых данных
+            new_rows = []
+            for item in data:
+                new_rows.append({
+                    "Дата": item['date'].strftime('%d.%m.%Y') if isinstance(item['date'], date) else item['date'],
+                    "Количество случаев": item['cases'],
+                    "Уровень риска": self.calculate_risk_level(item['cases']),
+                    "Источник": item.get('source', 'Неизвестно'),
+                    "Заголовок": item.get('title', ''),
+                    "Ссылка": item.get('url', '')
+                })
+            
+            df_new = pd.DataFrame(new_rows)
+            
+            # Объединяем и удаляем дубликаты
+            df_combined = pd.concat([df_existing, df_new])
+            df_combined.drop_duplicates(
+                subset=["Дата", "Источник", "Заголовок"], 
+                keep='last', 
+                inplace=True
+            )
+            
+            # Сохраняем обратно в Excel
+            df_combined.to_excel(self.excel_file, index=False, engine='openpyxl')
+            
+            # Применяем форматирование
+            self.format_excel_file()
+            
+            return True
+        except Exception as e:
+            print(f"Ошибка при сохранении в Excel: {str(e)}")
+            return False
+
+    def load_from_excel(self):
+        """Загрузка данных из Excel файла"""
+        try:
+            df = pd.read_excel(self.excel_file, engine='openpyxl')
+            
+            # Преобразуем даты из строк в объекты date
+            df['Дата'] = pd.to_datetime(df['Дата'], format='%d.%m.%Y').dt.date
+            
+            # Сортируем по дате
+            df = df.sort_values(by='Дата', ascending=False)
+            
+            # Конвертируем в список словарей
+            sources = []
+            for _, row in df.iterrows():
+                sources.append({
+                    'date': row['Дата'],
+                    'cases': row['Количество случаев'],
+                    'risk_level': row['Уровень риска'],
+                    'source': row['Источник'],
+                    'title': row['Заголовок'],
+                    'url': row['Ссылка']
+                })
+            
+            return sources
+        except Exception as e:
+            print(f"Ошибка при загрузке из Excel: {str(e)}")
+            return []
+
     def load_sounds(self):
         """Загрузка звуковых эффектов"""
         try:
             self.background_sound = pygame.mixer.Sound("forest.wav") if os.path.exists("forest.wav") else None
             self.button_sound = pygame.mixer.Sound("button.wav") if os.path.exists("button.wav") else None
             self.update_sound = pygame.mixer.Sound("update.wav") if os.path.exists("update.wav") else None
+            self.export_sound = pygame.mixer.Sound("export.wav") if os.path.exists("export.wav") else None
         except:
             self.sound_enabled = False
 
@@ -181,7 +293,7 @@ class TickActivityMonitor:
     def create_filter_panel(self, parent):
         """Создание панели фильтров"""
         filter_frame = ttk.LabelFrame(parent, text="Фильтр данных", style='TFrame')
-        filter_frame.pack(fill=tk.X, padx=300, pady=20)
+        filter_frame.pack(fill=tk.X, padx=10, pady=10)
 
         ttk.Label(filter_frame, text="Начальная дата:").grid(row=0, column=0, padx=5, pady=5)
         self.start_date = DateEntry(filter_frame, 
@@ -204,6 +316,54 @@ class TickActivityMonitor:
                              command=self.apply_date_filter)
         apply_btn.grid(row=0, column=4, padx=10, pady=5)
         apply_btn.bind("<Button-1>", lambda e: self.play_sound(self.button_sound))
+
+        export_btn = ttk.Button(filter_frame, 
+                              text="📁 Экспорт в Excel", 
+                              command=self.export_to_excel)
+        export_btn.grid(row=0, column=5, padx=10, pady=5)
+        export_btn.bind("<Button-1>", lambda e: self.play_sound(self.button_sound))
+
+    def export_to_excel(self):
+        """Экспорт данных в новый Excel файл"""
+        try:
+            file_path = filedialog.asksaveasfilename(
+                defaultextension=".xlsx",
+                filetypes=[("Excel files", "*.xlsx"), ("All files", "*.*")],
+                initialfile="tick_stats_export.xlsx"
+            )
+            
+            if file_path:
+                # Копируем наш основной файл
+                import shutil
+                shutil.copyfile(self.excel_file, file_path)
+                
+                # Форматируем экспортированный файл
+                wb = openpyxl.load_workbook(file_path)
+                ws = wb.active
+                
+                # Добавляем заголовок
+                ws.insert_rows(1)
+                ws.merge_cells('A1:F1')
+                title_cell = ws['A1']
+                title_cell.value = "Данные по активности клещей в Тюменской области"
+                title_cell.font = Font(bold=True, size=14)
+                title_cell.alignment = openpyxl.styles.Alignment(horizontal='center')
+                
+                # Добавляем дату экспорта
+                ws.insert_rows(2)
+                ws.merge_cells('A2:F2')
+                date_cell = ws['A2']
+                date_cell.value = f"Дата экспорта: {datetime.now().strftime('%d.%m.%Y %H:%M')}"
+                date_cell.font = Font(italic=True)
+                date_cell.alignment = openpyxl.styles.Alignment(horizontal='center')
+                
+                wb.save(file_path)
+                wb.close()
+                
+                messagebox.showinfo("Успех", f"Данные успешно экспортированы в файл:\n{file_path}")
+                self.play_sound(self.export_sound)
+        except Exception as e:
+            messagebox.showerror("Ошибка", f"Не удалось экспортировать данные: {str(e)}")
 
     def create_stats_tab(self):
         """Создание вкладки со статистикой"""
@@ -240,9 +400,15 @@ class TickActivityMonitor:
         self.figure = plt.Figure(figsize=(10, 5), dpi=100, facecolor=self.bg_color)
         self.ax = self.figure.add_subplot(111)
         self.ax.set_facecolor(self.bg_color)
-        self.ax.tick_params(colors=self.text_color)
+        self.ax.tick_params(colors=self.text_color, labelsize=8)
+        
+        # Настройка осей
         for spine in self.ax.spines.values():
             spine.set_color(self.text_color)
+            spine.set_linewidth(1.5)
+        
+        # Настройка сетки
+        self.ax.grid(True, linestyle='--', alpha=0.7, color='#444444')
         
         self.canvas_graph = FigureCanvasTkAgg(self.figure, graph_frame)
         self.canvas_graph.get_tk_widget().pack(fill=tk.BOTH, expand=True)
@@ -284,11 +450,47 @@ class TickActivityMonitor:
                                    command=self.toggle_sound)
         self.sound_btn.pack(side=tk.LEFT, padx=5)
         
+        self.risk_legend_btn = ttk.Button(control_frame,
+                                        text="📊 Легенда рисков",
+                                        command=self.show_risk_legend)
+        self.risk_legend_btn.pack(side=tk.LEFT, padx=5)
+        
         self.update_label = ttk.Label(control_frame, style='Data.TLabel')
         self.update_label.pack(side=tk.RIGHT, padx=10)
         
         self.update_btn.bind("<Button-1>", lambda e: self.play_sound(self.button_sound))
         self.sound_btn.bind("<Button-1>", lambda e: self.play_sound(self.button_sound))
+        self.risk_legend_btn.bind("<Button-1>", lambda e: self.play_sound(self.button_sound))
+
+    def show_risk_legend(self):
+        """Показывает легенду уровней риска"""
+        legend_window = tk.Toplevel(self.root)
+        legend_window.title("Легенда уровней риска")
+        legend_window.geometry("300x200")
+        legend_window.resizable(False, False)
+        
+        ttk.Label(legend_window, text="Уровни риска активности клещей", 
+                 font=('Arial', 12, 'bold')).pack(pady=10)
+        
+        legend_frame = ttk.Frame(legend_window)
+        legend_frame.pack(padx=10, pady=5, fill=tk.BOTH, expand=True)
+        
+        risk_levels = [
+            ("Низкий", "#00ff00", "Менее 50 случаев"),
+            ("Умеренный", "#ffff00", "50-99 случаев"),
+            ("Высокий", "#ff9900", "100-149 случаев"),
+            ("Очень высокий", "#ff0000", "150+ случаев")
+        ]
+        
+        for level, color, desc in risk_levels:
+            frame = ttk.Frame(legend_frame)
+            frame.pack(fill=tk.X, pady=2)
+            
+            canvas = tk.Canvas(frame, width=20, height=20, bg=self.bg_color, highlightthickness=0)
+            canvas.create_rectangle(2, 2, 18, 18, fill=color, outline="white")
+            canvas.pack(side=tk.LEFT, padx=5)
+            
+            ttk.Label(frame, text=f"{level}: {desc}").pack(side=tk.LEFT, anchor=tk.W)
 
     def toggle_sound(self):
         """Включение/выключение звука"""
@@ -332,48 +534,74 @@ class TickActivityMonitor:
 
     def update_filtered_graph(self, data, start_date, end_date):
         """Обновление графика с отфильтрованными данными"""
-        weekly_data = {}
-        for item in data:
-            item_date = item['date'] if isinstance(item['date'], date) else datetime.strptime(item['date'], '%d.%m.%Y').date()
-            year, week = item_date.isocalendar()[0], item_date.isocalendar()[1]
-            key = f"{year}-{week}"
-            if key not in weekly_data:
-                weekly_data[key] = {
-                    'cases': 0,
-                    'start_date': item_date,
-                    'end_date': item_date
-                }
-            weekly_data[key]['cases'] += item['cases']
-            weekly_data[key]['end_date'] = max(weekly_data[key]['end_date'], item_date)
+        # Создаем DataFrame для удобной обработки
+        df = pd.DataFrame(data)
         
+        # Группируем по неделям
+        df['date'] = pd.to_datetime(df['date'])
+        df['year_week'] = df['date'].dt.strftime('%Y-%U')
+        
+        weekly_data = df.groupby('year_week').agg({
+            'cases': 'sum',
+            'date': ['min', 'max']
+        }).reset_index()
+        
+        weekly_data.columns = ['year_week', 'cases', 'start_date', 'end_date']
+        
+        # Сортируем по дате
+        weekly_data = weekly_data.sort_values('start_date')
+        
+        # Подготавливаем данные для графика
         weeks = []
         cases = []
         colors = []
         
-        for week_data in sorted(weekly_data.values(), key=lambda x: x['start_date']):
-            week_label = f"{week_data['start_date'].strftime('%d.%m')}-{week_data['end_date'].strftime('%d.%m')}"
+        for _, row in weekly_data.iterrows():
+            week_label = f"{row['start_date'].strftime('%d.%m')}-{row['end_date'].strftime('%d.%m')}"
             weeks.append(week_label)
-            cases.append(week_data['cases'])
-            risk_level = self.calculate_risk_level(week_data['cases'])
+            cases.append(row['cases'])
+            risk_level = self.calculate_risk_level(row['cases'])
             colors.append(self.get_risk_color(risk_level))
         
+        # Очищаем и обновляем график
         self.ax.clear()
-        bars = self.ax.bar(weeks, cases, color=colors)
-        self.ax.set_ylabel('Количество обращений', color=self.text_color)
-        self.ax.set_title(f'Активность клещей {start_date.strftime("%d.%m.%Y")}-{end_date.strftime("%d.%m.%Y")}', 
-                         color=self.highlight_color)
         
+        # Гистограмма с настройками
+        bars = self.ax.bar(week_label, cases, color=colors, width=0.7, edgecolor='white', linewidth=1)
+        
+        # Настройки осей
+        self.ax.set_ylabel('Количество обращений', color=self.text_color, fontsize=10)
+        self.ax.set_xlabel('Период (неделя)', color=self.text_color, fontsize=10)
+        self.ax.set_title(
+            f'Активность клещей {start_date.strftime("%d.%m.%Y")}-{end_date.strftime("%d.%m.%Y")}', 
+            color=self.highlight_color, fontsize=12, pad=20
+        )
+        
+        # Поворачиваем подписи на оси X для лучшей читаемости
+        plt.setp(self.ax.get_xticklabels(), rotation=45, ha='right', rotation_mode='anchor')
+        
+        # Добавляем значения на столбцы
         for bar in bars:
             height = bar.get_height()
-            self.ax.text(bar.get_x() + bar.get_width()/2., height,
-                        f'{int(height)}',
-                        ha='center', va='bottom', color='#ffffff')
+            self.ax.text(
+                bar.get_x() + bar.get_width()/2., 
+                height + 0.5,
+                f'{int(height)}',
+                ha='center', va='bottom', 
+                color='#ffffff',
+                fontsize=8
+            )
         
+        # Настраиваем сетку
+        self.ax.grid(True, linestyle='--', alpha=0.7, color='#444444')
+        
+        # Обновляем холст
         self.canvas_graph.draw()
         
+        # Обновляем данные о текущей и предыдущей неделе
         if len(weekly_data) >= 2:
-            last_week = sorted(weekly_data.values(), key=lambda x: x['start_date'])[-1]
-            prev_week = sorted(weekly_data.values(), key=lambda x: x['start_date'])[-2]
+            last_week = weekly_data.iloc[-1]
+            prev_week = weekly_data.iloc[-2]
             
             self.current_data.config(text=f"{last_week['cases']} случаев\n"
                                       f"({last_week['start_date'].strftime('%d.%m')}-{last_week['end_date'].strftime('%d.%m')})")
@@ -406,13 +634,19 @@ class TickActivityMonitor:
         if combined_results:
             combined_results.sort(key=lambda x: x['date'], reverse=True)
             
-            current_week_data = self.find_week_data(combined_results, 0)
-            previous_week_data = self.find_week_data(combined_results, 1)
+            # Сохраняем в Excel
+            self.save_to_excel(combined_results)
+            
+            # Загружаем все данные из Excel (включая новые)
+            all_data = self.load_from_excel()
+            
+            current_week_data = self.find_week_data(all_data, 0)
+            previous_week_data = self.find_week_data(all_data, 1)
             
             return {
                 'current_week': current_week_data,
                 'previous_week': previous_week_data,
-                'sources': combined_results[:100]  # 100 последних записей
+                'sources': all_data[:100]  # 100 последних записей
             }
         return None
 
@@ -436,7 +670,7 @@ class TickActivityMonitor:
             # Ищем сообщения, содержащие информацию о клещах
             messages = soup.find_all('div', class_='tgme_widget_message')
             
-            for message in messages[:100]:  # Ограничиваемся 50 последними сообщениями
+            for message in messages[:50]:  # Ограничиваемся 50 последними сообщениями
                 try:
                     # Пропускаем сообщения без текста
                     if not message.find('div', class_='tgme_widget_message_text'):
@@ -594,7 +828,8 @@ class TickActivityMonitor:
             r'зарегистрировано\D*(\d+)\D*обращ',
             r'выявлено\D*(\d+)\D*случа',
             r'(\d+)\D*укус',
-            r'клещ\D*(\d+)'
+            r'клещ\D*(\d+)',
+            r'(\d+)\s*(?:случа[ея]в|обращени[ий])'
         ]
         
         for pattern in patterns:
@@ -604,7 +839,7 @@ class TickActivityMonitor:
                     return int(match.group(1))
                 except ValueError:
                     continue
-        return None
+        return 0  # Возвращаем 0 вместо None для лучшей обработки в Excel
 
     def update_data(self):
         """Основной метод обновления данных"""
@@ -616,7 +851,7 @@ class TickActivityMonitor:
                 messagebox.showinfo("Успех", "Данные успешно обновлены!")
                 self.play_sound(self.update_sound)
             else:
-                raise ValueError("Не удалось получить данные с сайта")
+                raise ValueError("Не удалось получить данные с сайтов")
                 
         except Exception as e:
             print(f"Ошибка при обновлении: {str(e)}")
@@ -627,6 +862,7 @@ class TickActivityMonitor:
     def update_data_threaded(self):
         """Запуск обновления в отдельном потоке"""
         self.update_btn.config(state=tk.DISABLED)
+        self.update_label.config(text="Обновление данных...")
         thread = threading.Thread(target=self.update_data)
         thread.daemon = True
         thread.start()
@@ -638,6 +874,7 @@ class TickActivityMonitor:
             self.root.after(100, self.check_thread, thread)
         else:
             self.update_btn.config(state=tk.NORMAL)
+            self.update_label.config(text=f"Обновлено: {self.data.get('last_update', 'никогда')}")
 
     def process_new_data(self, new_data):
         """Обработка новых данных"""
@@ -681,55 +918,112 @@ class TickActivityMonitor:
         self.update_label.config(text=f"Обновлено: {self.data.get('last_update', 'никогда')}")
 
     def update_graph(self):
-        """Обновление графика"""
-        self.ax.clear()
-        
-        if self.data["current_week"]["date"] and self.data["previous_week"]["date"]:
-            weeks = [
-                f"{self.data['previous_week']['date']}\n(прошлая)", 
-                f"{self.data['current_week']['date']}\n(текущая)"
-            ]
-            cases = [
-                self.data["previous_week"]["cases"],
-                self.data["current_week"]["cases"]
-            ]
+        """Обновление графика с данными из Excel"""
+        try:
+            # Загружаем все данные из Excel
+            all_data = self.load_from_excel()
             
-            colors = [
-                self.get_risk_color(self.data["previous_week"]["risk_level"]),
-                self.get_risk_color(self.data["current_week"]["risk_level"])
-            ]
+            if not all_data:
+                return
+                
+            # Создаем DataFrame для анализа
+            df = pd.DataFrame(all_data)
+            df['date'] = pd.to_datetime(df['date'])
             
-            bars = self.ax.bar(weeks, cases, color=colors)
+            # Группируем по неделям
+            df['year_week'] = df['date'].dt.strftime('%Y-%U')
+            weekly_data = df.groupby('year_week').agg({
+                'cases': 'sum',
+                'date': ['min', 'max']
+            }).reset_index()
+            
+            weekly_data.columns = ['year_week', 'cases', 'start_date', 'end_date']
+            weekly_data = weekly_data.sort_values('start_date')
+            
+            # Берем последние 8 недель для графика
+            weekly_data = weekly_data.tail(8)
+            
+            # Подготовка данных для графика
+            weeks = []
+            cases = []
+            colors = []
+            
+            for _, row in weekly_data.iterrows():
+                week_label = f"{row['start_date'].strftime('%d.%m')}-{row['end_date'].strftime('%d.%m')}"
+                weeks.append(week_label)
+                cases.append(row['cases'])
+                colors.append(self.get_risk_color(self.calculate_risk_level(row['cases'])))
+            
+            # Очищаем и обновляем график
+            self.ax.clear()
+            
+            # Гистограмма с улучшенным дизайном
+            bars = self.ax.bar(
+                weeks, cases, 
+                color=colors,
+                width=0.6,
+                edgecolor='white',
+                linewidth=1,
+                alpha=0.8
+            )
+            
+            # Настройки осей и заголовка
+            self.ax.set_title(
+                'Динамика активности клещей (последние 8 недель)',
+                color=self.highlight_color,
+                fontsize=12,
+                pad=20
+            )
             self.ax.set_ylabel('Количество обращений', color=self.text_color)
-            self.ax.set_title('Динамика активности клещей', color=self.highlight_color)
+            self.ax.set_xlabel('Неделя', color=self.text_color)
             
+            # Поворот подписей на оси X
+            plt.setp(self.ax.get_xticklabels(), rotation=45, ha='right')
+            
+            # Добавление значений на столбцы
             for bar in bars:
                 height = bar.get_height()
-                self.ax.text(bar.get_x() + bar.get_width()/2., height,
-                            f'{int(height)}',
-                            ha='center', va='bottom', color='#ffffff')
+                self.ax.text(
+                    bar.get_x() + bar.get_width()/2.,
+                    height + 0.5,
+                    f'{int(height)}',
+                    ha='center',
+                    va='bottom',
+                    color='white',
+                    fontsize=9
+                )
             
+            # Настройка сетки
+            self.ax.grid(True, linestyle=':', color='#555555', alpha=0.5)
+            
+            # Обновляем холст
             self.canvas_graph.draw()
+            
+        except Exception as e:
+            print(f"Ошибка при обновлении графика: {str(e)}")
 
     def update_sources(self):
         """Обновление списка источников"""
         self.sources_text.config(state=tk.NORMAL)
         self.sources_text.delete(1.0, tk.END)
         
-        for src in self.data.get('sources', []):
+        # Показываем только последние 20 записей
+        for src in self.data.get('sources', [])[:20]:
             date_str = src['date'].strftime('%d.%m.%Y') if isinstance(src['date'], date) else src['date']
             self.sources_text.insert(tk.END, 
                                    f"Дата: {date_str}\n"
                                    f"Случаев: {src['cases']}\n"
-                                   f"Источник: {src.get('source', 'Роспотребнадзор')}\n"
+                                   f"Риск: {src.get('risk_level', 'Нет данных')}\n"
+                                   f"Источник: {src.get('source', 'Неизвестно')}\n"
                                    f"Заголовок: {src.get('title', '')}\n"
-                                   f"Ссылка: {src.get('url', '')}\n\n")
+                                   f"Ссылка: {src.get('url', '')}\n"
+                                   f"{'-'*50}\n")
         
         self.sources_text.config(state=tk.DISABLED)
 
     def calculate_risk_level(self, cases):
         """Определение уровня риска"""
-        if not isinstance(cases, int):
+        if not isinstance(cases, int) or cases == 0:
             return "Нет данных"
             
         if cases < 50:
@@ -748,12 +1042,12 @@ class TickActivityMonitor:
             "Умеренный": "#ffff00",
             "Высокий": "#ff9900",
             "Очень высокий": "#ff0000",
-            "Нет данных": "#00ffff"
+            "Нет данных": "#aaaaaa"
         }
-        return colors.get(risk_level, "#00ffff")
+        return colors.get(risk_level, "#aaaaaa")
 
     def save_data(self):
-        """Сохранение данных в файл"""
+        """Сохранение данных в файл JSON"""
         try:
             data_to_save = self.data.copy()
             for src in data_to_save['sources']:
@@ -763,11 +1057,12 @@ class TickActivityMonitor:
             with open(self.data_file, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            print(f"Ошибка при сохранении: {str(e)}")
+            print(f"Ошибка при сохранении JSON: {str(e)}")
 
     def load_data(self):
-        """Загрузка данных из файла"""
+        """Загрузка данных из файла JSON и Excel"""
         try:
+            # Загружаем из JSON
             if os.path.exists(self.data_file):
                 with open(self.data_file, 'r', encoding='utf-8') as f:
                     data = json.load(f)
@@ -777,11 +1072,43 @@ class TickActivityMonitor:
                             try:
                                 src['date'] = datetime.strptime(src['date'], '%d.%m.%Y').date()
                             except ValueError:
-                                print(f"Неизвестный формат даты: {src['date']}")
                                 continue
                     
                     self.data = data
-                    self.update_ui()
+            
+            # Дополняем данными из Excel
+            excel_data = self.load_from_excel()
+            if excel_data:
+                if 'sources' not in self.data:
+                    self.data['sources'] = []
+                
+                # Объединяем источники, избегая дубликатов
+                existing_sources = {(src['date'], src['source'], src['title']) for src in self.data['sources']}
+                for src in excel_data:
+                    key = (src['date'], src['source'], src['title'])
+                    if key not in existing_sources:
+                        self.data['sources'].append(src)
+                
+                # Сортируем по дате
+                self.data['sources'].sort(key=lambda x: x['date'], reverse=True)
+                
+                # Обновляем текущую и предыдущую неделю
+                if len(self.data['sources']) >= 1:
+                    self.data['current_week'] = {
+                        'cases': self.data['sources'][0]['cases'],
+                        'date': self.data['sources'][0]['date'],
+                        'risk_level': self.calculate_risk_level(self.data['sources'][0]['cases'])
+                    }
+                
+                if len(self.data['sources']) >= 2:
+                    self.data['previous_week'] = {
+                        'cases': self.data['sources'][1]['cases'],
+                        'date': self.data['sources'][1]['date'],
+                        'risk_level': self.calculate_risk_level(self.data['sources'][1]['cases'])
+                    }
+            
+            self.update_ui()
+            
         except (FileNotFoundError, json.JSONDecodeError) as e:
             print(f"Ошибка загрузки: {str(e)}")
             self.data = self.default_data.copy()
