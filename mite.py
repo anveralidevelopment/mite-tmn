@@ -14,6 +14,7 @@ import feedparser
 from tkcalendar import DateEntry
 import pygame
 import sys
+from dateutil import parser as date_parser
 
 class TickActivityMonitor:
     def __init__(self, root):
@@ -392,12 +393,15 @@ class TickActivityMonitor:
         """Парсинг данных с сайта Роспотребнадзора"""
         web_data = self.parse_web_data()
         rss_data = self.parse_rss_feed()
+        telegram_data = self.parse_telegram()
         
         combined_results = []
         if web_data:
             combined_results.extend(web_data)
         if rss_data:
             combined_results.extend(rss_data)
+        if telegram_data:
+            combined_results.extend(telegram_data)
         
         if combined_results:
             combined_results.sort(key=lambda x: x['date'], reverse=True)
@@ -411,6 +415,69 @@ class TickActivityMonitor:
                 'sources': combined_results[:100]  # 100 последних записей
             }
         return None
+
+    def parse_telegram(self):
+        """Парсинг данных из Telegram-канала"""
+        try:
+            url = "https://t.me/s/tu_ymen72"
+            ua = UserAgent()
+            headers = {
+                'User-Agent': ua.random,
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
+            }
+            
+            response = requests.get(url, headers=headers, timeout=15)
+            response.raise_for_status()
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            results = []
+            
+            # Ищем сообщения, содержащие информацию о клещах
+            messages = soup.find_all('div', class_='tgme_widget_message')
+            
+            for message in messages[:50]:  # Ограничиваемся 50 последними сообщениями
+                try:
+                    # Пропускаем сообщения без текста
+                    if not message.find('div', class_='tgme_widget_message_text'):
+                        continue
+                        
+                    text = message.find('div', class_='tgme_widget_message_text').get_text('\n', strip=True)
+                    
+                    # Ищем только сообщения, связанные с клещами
+                    if not any(word in text.lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
+                        continue
+                    
+                    # Извлекаем дату сообщения
+                    time_tag = message.find('time', class_='time')
+                    if not time_tag or not time_tag.has_attr('datetime'):
+                        continue
+                        
+                    message_date = date_parser.parse(time_tag['datetime']).date()
+                    
+                    # Извлекаем количество случаев
+                    cases = self.extract_case_number(text)
+                    if not cases:
+                        cases = 0
+                    
+                    # Формируем результат
+                    results.append({
+                        'date': message_date,
+                        'cases': cases,
+                        'title': text[:50] + "..." if len(text) > 50 else text,
+                        'content': text[:200] + "..." if len(text) > 200 else text,
+                        'url': url,
+                        'source': 'Telegram (Тюмень 72)'
+                    })
+                except Exception as e:
+                    print(f"Ошибка обработки сообщения Telegram: {str(e)}")
+                    continue
+            
+            return results
+            
+        except Exception as e:
+            print(f"Ошибка при парсинге Telegram: {str(e)}")
+            return None
 
     def find_week_data(self, data, weeks_ago):
         """Находит данные за указанное количество недель назад"""
