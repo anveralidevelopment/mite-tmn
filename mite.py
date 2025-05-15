@@ -436,7 +436,7 @@ class TickActivityMonitor:
             # Ищем сообщения, содержащие информацию о клещах
             messages = soup.find_all('div', class_='tgme_widget_message')
             
-            for message in messages[:50]:  # Ограничиваемся 50 последними сообщениями
+            for message in messages[:100]:  # Ограничиваемся 50 последними сообщениями
                 try:
                     # Пропускаем сообщения без текста
                     if not message.find('div', class_='tgme_widget_message_text'):
