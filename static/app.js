@@ -23,12 +23,20 @@ document.addEventListener('DOMContentLoaded', function() {
 // Инициализация карты
 function initMap() {
     // Центр карты - Тюменская область
-    map = L.map('map').setView([57.1522, 65.5272], 7);
+    map = L.map('map', {
+        attributionControl: false
+    }).setView([57.1522, 65.5272], 7);
     
-    // Добавляем слой карты OpenStreetMap
+    // Используем OpenStreetMap - это международный открытый проект картографии
+    // Тайлы карты загружаются с серверов OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 18
+        maxZoom: 18,
+        subdomains: ['a', 'b', 'c']
+    }).addTo(map);
+    
+    // Добавляем свою кастомную атрибуцию без ссылки на Leaflet
+    L.control.attribution({
+        prefix: '© Карты России | OpenStreetMap'
     }).addTo(map);
 }
 

@@ -64,13 +64,31 @@ class TickParser:
             
             web_config = self.config.get('parsing', {}).get('sources', {}).get('web', {})
             base_url = web_config.get('base_url', 'https://72.rospotrebnadzor.ru')
-            search_url = web_config.get('search_url', f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8")
             max_items = web_config.get('max_items', 100)
             
-            self.logger.info(f"Парсинг веб-сайта: {search_url}")
-            response = self.make_request_with_retry(search_url, headers)
+            # Пробуем разные варианты URL для поиска
+            search_urls = [
+                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8",  # Основной поиск
+                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89",  # Альтернативный поиск
+                f"{base_url}/search/",  # Общая страница поиска
+                f"{base_url}/news/",  # Страница новостей
+                f"{base_url}/press/",  # Пресс-релизы
+                f"{base_url}/",  # Главная страница
+                f"{base_url}/category/news/",  # Категория новостей
+            ]
             
-            if not response:
+            response = None
+            for search_url in search_urls:
+                self.logger.info(f"Попытка парсинга веб-сайта: {search_url}")
+                response = self.make_request_with_retry(search_url, headers)
+                if response and response.status_code == 200:
+                    self.logger.info(f"Успешно получен доступ к: {search_url}")
+                    break
+                else:
+                    self.logger.debug(f"Не удалось получить доступ к: {search_url}")
+            
+            if not response or response.status_code != 200:
+                self.logger.warning("Не удалось получить доступ ни к одному URL веб-сайта Роспотребнадзора")
                 return []
             
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -356,21 +374,33 @@ class TickParser:
             
             web_config = self.config.get('parsing', {}).get('sources', {}).get('rospotrebnadzor_news', {})
             base_url = web_config.get('base_url', 'https://72.rospotrebnadzor.ru')
-            # Пробуем разные варианты URL
-            news_urls = [
-                f"{base_url}/news",
-                f"{base_url}/press/",
-                f"{base_url}/",
-                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8"
-            ]
             max_items = web_config.get('max_items', 50)
+            
+            # Пробуем разные варианты URL для новостей
+            news_urls = [
+                f"{base_url}/news/",  # Страница новостей
+                f"{base_url}/news",  # Без слэша
+                f"{base_url}/press/",  # Пресс-релизы
+                f"{base_url}/press",  # Без слэша
+                f"{base_url}/category/news/",  # Категория новостей
+                f"{base_url}/category/press/",  # Категория прессы
+                f"{base_url}/announcements/",  # Анонсы
+                f"{base_url}/",  # Главная страница
+                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8",  # Поиск по клещам
+                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89",  # Альтернативный поиск
+            ]
             
             response = None
             for news_url in news_urls:
                 self.logger.info(f"Попытка парсинга новостей Роспотребнадзора: {news_url}")
                 response = self.make_request_with_retry(news_url, headers)
                 if response and response.status_code == 200:
-                    break
+                    # Проверяем, что страница содержит релевантный контент
+                    if 'клещ' in response.text.lower() or len(response.text) > 1000:
+                        self.logger.info(f"Успешно получен доступ к новостям: {news_url}")
+                        break
+                    else:
+                        self.logger.debug(f"Страница доступна, но не содержит релевантного контента: {news_url}")
             
             if not response or response.status_code != 200:
                 self.logger.warning("Не удалось получить доступ к новостям Роспотребнадзора")
