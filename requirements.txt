@@ -30,7 +30,6 @@ selenium>=4.15.0
 PyPDF2>=3.0.0
 pytesseract>=0.3.10
 Pillow>=10.0.0
-vkontakte-api>=11.9.1
 tensorflow>=2.15.0
 keras>=2.15.0
 scipy>=1.11.0
