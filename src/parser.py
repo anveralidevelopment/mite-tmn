@@ -681,19 +681,57 @@ class TickParser:
                     date_elem = item.find(['time', 'span', 'div'], class_=['date', 'time', 'news-date'])
                     date_text = date_elem.text.strip() if date_elem else ""
                     
+                    # Если не нашли в элементе, пробуем атрибут datetime
+                    if not date_text and date_elem and date_elem.has_attr('datetime'):
+                        date_text = date_elem.get('datetime', '')
+                    
                     content_elem = item.find(['div', 'p'], class_=['content', 'text', 'description', 'excerpt'])
                     content = content_elem.text.strip() if content_elem else ""
                     
-                    # Парсинг даты
-                    date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', date_text)
-                    if not date_match:
-                        date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
+                    # Парсинг даты с улучшенной логикой
+                    item_date = None
+                    
+                    # Пробуем dateutil
+                    if date_text:
+                        try:
+                            parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
+                            if parsed_date:
+                                item_date = parsed_date.date()
+                        except:
+                            pass
+                    
+                    # Если dateutil не сработал, пробуем регулярные выражения
+                    if not item_date and date_text:
+                        date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', date_text)
                         if date_match:
-                            item_date = datetime.strptime(date_match.group(), '%Y-%m-%d').date()
-                        else:
-                            continue
-                    else:
-                        item_date = datetime.strptime(date_match.group(), '%d.%m.%Y').date()
+                            try:
+                                item_date = datetime.strptime(date_match.group(), '%d.%m.%Y').date()
+                            except:
+                                pass
+                        
+                        if not item_date:
+                            date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
+                            if date_match:
+                                try:
+                                    item_date = datetime.strptime(date_match.group(), '%Y-%m-%d').date()
+                                except:
+                                    pass
+                    
+                    # Валидация даты
+                    if item_date:
+                        today = date.today()
+                        if item_date > today:
+                            self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
+                            item_date = today
+                        elif item_date < date(2020, 1, 1):
+                            self.logger.warning(f"Дата слишком старая: {item_date}, пропускаем запись")
+                            item_date = None
+                            continue  # Пропускаем запись
+                    
+                    # Если дата не найдена, пропускаем запись
+                    if not item_date:
+                        self.logger.warning(f"Не удалось определить дату для новости, пропускаем")
+                        continue
                     
                     cases = self.extract_case_number(title + " " + content)
                     if not cases and any(word in (title + " " + content).lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван', 'боррелиоз']):

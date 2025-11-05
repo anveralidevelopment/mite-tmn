@@ -28934,3 +28934,249 @@ sqlalchemy.exc.OperationalError: (psycopg2.OperationalError) could not translate
 2025-11-05 20:04:04 - mite_tmn - INFO - Парсинг страницы поиска 7: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=7
 2025-11-05 20:04:04 - mite_tmn - INFO - Парсинг страницы поиска 7: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=7
 2025-11-05 20:04:04 - mite_tmn - INFO - Парсинг страницы поиска 7: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=7
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:05 - mite_tmn - INFO - На странице 7 найдено 10 ссылок
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:06 - mite_tmn - INFO - Парсинг страницы поиска 8: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=8
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:07 - mite_tmn - INFO - На странице 8 найдено 10 ссылок
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:08 - mite_tmn - INFO - Парсинг страницы поиска 9: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=9
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:09 - mite_tmn - INFO - На странице 9 найдено 10 ссылок
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:10 - mite_tmn - INFO - Парсинг страницы поиска 10: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=10
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:11 - mite_tmn - INFO - На странице 10 найдено 10 ссылок
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:12 - mite_tmn - INFO - Парсинг страницы поиска 11: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=11
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:13 - mite_tmn - INFO - На странице 11 найдено 10 ссылок
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:14 - mite_tmn - INFO - Парсинг страницы поиска 12: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=12
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:15 - mite_tmn - INFO - На странице 12 найдено 10 ссылок
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:16 - mite_tmn - INFO - Парсинг страницы поиска 13: https://72.rospotrebnadzor.ru/search/?q=клещи&spell=1&where=&page=13
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:17 - mite_tmn - INFO - На странице 13 найдено 10 ссылок
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Всего найдено 137 уникальных статей
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:18 - mite_tmn - INFO - Парсинг статьи 1/100: https://72.rospotrebnadzor.ru/content/465/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:19 - mite_tmn - INFO - Парсинг статьи 2/100: https://72.rospotrebnadzor.ru/content/531/118073/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:21 - mite_tmn - INFO - Парсинг статьи 3/100: https://72.rospotrebnadzor.ru/content/465/125039/
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:22 - mite_tmn - INFO - Парсинг статьи 4/100: http://72.rospotrebnadzor.ru/content/465/109731/ 
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:23 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:26 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
+2025-11-05 20:04:29 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/content/465/109731/%20
