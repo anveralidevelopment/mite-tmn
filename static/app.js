@@ -235,17 +235,41 @@ async function loadGraph(startDate = null, endDate = null) {
     }
 }
 
+// Переменные для пагинации
+let currentOffset = 0;
+let currentSources = [];
+let allFilteredSources = [];
+let hasMoreSources = false;
+let currentFilters = {};
+
 // Загрузка источников с фильтрами
-async function loadSources() {
+async function loadSources(reset = false) {
     try {
+        if (reset) {
+            currentOffset = 0;
+            currentSources = [];
+            allFilteredSources = [];
+        }
+        
         // Получаем значения фильтров
         const search = document.getElementById('searchInput')?.value || '';
         const location = document.getElementById('locationFilter')?.value || '';
         const source = document.getElementById('sourceFilter')?.value || '';
         const risk = document.getElementById('riskFilter')?.value || '';
         
+        // Проверяем, изменились ли фильтры
+        const newFilters = {search, location, source, risk};
+        const filtersChanged = JSON.stringify(newFilters) !== JSON.stringify(currentFilters);
+        
+        if (filtersChanged) {
+            currentOffset = 0;
+            currentSources = [];
+            allFilteredSources = [];
+            currentFilters = newFilters;
+        }
+        
         // Формируем URL с параметрами
-        let url = '/api/sources?limit=50';
+        let url = `/api/sources?limit=10&offset=${currentOffset}`;
         if (search) url += `&search=${encodeURIComponent(search)}`;
         if (location) url += `&location=${encodeURIComponent(location)}`;
         if (source) url += `&source=${encodeURIComponent(source)}`;
@@ -255,9 +279,15 @@ async function loadSources() {
         const data = await response.json();
         
         const sourcesList = document.getElementById('sourcesList');
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
         
         if (data.sources && data.sources.length > 0) {
-            sourcesList.innerHTML = data.sources.map(source => `
+            // Добавляем новые источники к существующим
+            currentSources = currentSources.concat(data.sources);
+            hasMoreSources = data.has_more;
+            
+            // Отображаем все загруженные источники
+            sourcesList.innerHTML = currentSources.map(source => `
                 <div class="source-item">
                     <div class="source-header">
                         <div class="source-title">${escapeHtml(source.title || 'Без заголовка')}</div>
@@ -281,10 +311,28 @@ async function loadSources() {
                 </div>
             `).join('');
             
+            // Показываем/скрываем кнопку "Показать еще"
+            if (loadMoreBtn) {
+                if (hasMoreSources) {
+                    loadMoreBtn.style.display = 'block';
+                    loadMoreBtn.textContent = `Показать еще (${data.total - currentSources.length} осталось)`;
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
+            }
+            
             // Обновляем списки фильтров
-            updateFilterOptions(data.sources);
+            updateFilterOptions(currentSources);
+            
+            // Обновляем offset для следующей загрузки
+            currentOffset += data.sources.length;
         } else {
-            sourcesList.innerHTML = '<div class="loading">Нет данных, соответствующих фильтрам</div>';
+            if (currentSources.length === 0) {
+                sourcesList.innerHTML = '<div class="loading">Нет данных, соответствующих фильтрам</div>';
+            }
+            if (loadMoreBtn) {
+                loadMoreBtn.style.display = 'none';
+            }
         }
     } catch (error) {
         console.error('Ошибка загрузки источников:', error);
@@ -292,9 +340,14 @@ async function loadSources() {
     }
 }
 
+// Загрузка дополнительных источников
+function loadMoreSources() {
+    loadSources(false);
+}
+
 // Применение фильтров источников
 function applySourceFilters() {
-    loadSources();
+    loadSources(true); // Сбрасываем пагинацию при изменении фильтров
 }
 
 // Обновление опций фильтров
