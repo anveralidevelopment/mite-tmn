@@ -67,7 +67,8 @@ ml_predictions = Counter('ml_predictions_total', 'Total ML predictions made')
 
 # Инициализация компонентов
 # Используем переменную окружения DATABASE_URL если доступна
-db = DatabaseManager(os.getenv('DATABASE_URL'))
+database_url = os.getenv('DATABASE_URL', 'postgresql://mite_user:mite_password@db:5432/mite_tmn')
+db = DatabaseManager(database_url)
 parser = TickParser(db, logger)
 ml_predictor = TickPredictor(db)
 notification_manager = NotificationManager(app)

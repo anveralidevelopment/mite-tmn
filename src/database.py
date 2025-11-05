@@ -1,5 +1,5 @@
 """Модуль для работы с базой данных"""
-from sqlalchemy import create_engine, Column, Integer, String, Date, DateTime, Text
+from sqlalchemy import create_engine, Column, Integer, String, Date, DateTime, Text, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, date, timedelta
@@ -17,14 +17,22 @@ class TickData(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     date = Column(Date, nullable=False, index=True)
     cases = Column(Integer, nullable=False, default=0)
-    risk_level = Column(String(50), nullable=False)
-    source = Column(String(200), nullable=False)
+    risk_level = Column(String(50), nullable=False, index=True)
+    source = Column(String(200), nullable=False, index=True)
     title = Column(Text)
     content = Column(Text)
-    url = Column(Text)
-    location = Column(String(100))
-    created_at = Column(DateTime, default=datetime.now)
+    url = Column(Text, index=True)
+    location = Column(String(100), index=True)
+    created_at = Column(DateTime, default=datetime.now, index=True)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    
+    # Составные индексы для оптимизации запросов
+    __table_args__ = (
+        Index('idx_date_source', 'date', 'source'),
+        Index('idx_date_location', 'date', 'location'),
+        Index('idx_date_risk', 'date', 'risk_level'),
+        Index('idx_source_location', 'source', 'location'),
+    )
     
     def __repr__(self):
         return f"<TickData(date={self.date}, cases={self.cases}, source={self.source})>"

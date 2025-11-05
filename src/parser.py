@@ -894,48 +894,154 @@ class TickParser:
             return []
 
     def update_all_data(self):
-        """Обновление всех данных"""
+        """Обновление всех данных из всех источников с улучшенной обработкой ошибок"""
         try:
-            self.logger.info("Начало обновления данных")
-            web_data = self.parse_web_data()
-            rss_data = self.parse_rss_feed()
-            telegram_data = self.parse_telegram()
+            self.logger.info("Начинаем обновление данных из всех источников")
             
-            combined_results = []
-            combined_results.extend(web_data)
-            combined_results.extend(rss_data)
-            combined_results.extend(telegram_data)
+            all_data = []
+            errors_summary = {}
             
-            # Парсинг новостей Роспотребнадзора (если включен)
-            rospotrebnadzor_config = self.config.get('parsing', {}).get('sources', {}).get('rospotrebnadzor_news', {})
-            if rospotrebnadzor_config.get('enabled', True):
-                rospotrebnadzor_news = self.parse_rospotrebnadzor_news()
-                combined_results.extend(rospotrebnadzor_news)
-            else:
-                rospotrebnadzor_news = []
+            # Парсинг веб-сайта
+            try:
+                web_data = self.parse_web_data()
+                if web_data:
+                    all_data.extend(web_data)
+                    self.logger.info(f"Получено {len(web_data)} записей с веб-сайта")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга веб-сайта: {str(e)}"
+                errors_summary['web'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
             
-            # Парсинг новостей Тюмени (если включен)
-            tyumen_config = self.config.get('parsing', {}).get('sources', {}).get('tyumen_news', {})
-            if tyumen_config.get('enabled', False):
-                tyumen_news = self.parse_tyumen_news()
-                combined_results.extend(tyumen_news)
-            else:
-                tyumen_news = []
+            # Парсинг RSS
+            try:
+                rss_data = self.parse_rss_feed()
+                if rss_data:
+                    all_data.extend(rss_data)
+                    self.logger.info(f"Получено {len(rss_data)} записей из RSS")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга RSS: {str(e)}"
+                errors_summary['rss'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
             
-            self.logger.info(f"Всего найдено: веб={len(web_data)}, RSS={len(rss_data)}, Telegram={len(telegram_data)}, Роспотребнадзор новости={len(rospotrebnadzor_news)}, Тюмень новости={len(tyumen_news)}, всего={len(combined_results)}")
+            # Парсинг Telegram
+            try:
+                telegram_data = self.parse_telegram()
+                if telegram_data:
+                    all_data.extend(telegram_data)
+                    self.logger.info(f"Получено {len(telegram_data)} записей из Telegram")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга Telegram: {str(e)}"
+                errors_summary['telegram'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
             
-            if combined_results:
-                combined_results.sort(key=lambda x: x['date'], reverse=True)
+            # Парсинг новостей Роспотребнадзора
+            try:
+                rospotrebnadzor_config = self.config.get('parsing', {}).get('sources', {}).get('rospotrebnadzor_news', {})
+                if rospotrebnadzor_config.get('enabled', False):
+                    rospotrebnadzor_news = self.parse_rospotrebnadzor_news()
+                    if rospotrebnadzor_news:
+                        all_data.extend(rospotrebnadzor_news)
+                        self.logger.info(f"Получено {len(rospotrebnadzor_news)} записей из новостей Роспотребнадзора")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга новостей Роспотребнадзора: {str(e)}"
+                errors_summary['rospotrebnadzor_news'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
+            
+            # Парсинг новостей Тюмени
+            try:
+                tyumen_config = self.config.get('parsing', {}).get('sources', {}).get('tyumen_news', {})
+                if tyumen_config.get('enabled', False):
+                    tyumen_news = self.parse_tyumen_news()
+                    if tyumen_news:
+                        all_data.extend(tyumen_news)
+                        self.logger.info(f"Получено {len(tyumen_news)} записей из новостей Тюмени")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга новостей Тюмени: {str(e)}"
+                errors_summary['tyumen_news'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
+            
+            # Сохраняем данные в БД с улучшенной обработкой ошибок
+            if all_data:
+                self.logger.info(f"Всего получено {len(all_data)} записей, начинаем сохранение в БД")
+                saved_count = 0
+                error_count = 0
+                duplicate_count = 0
                 
-                # Добавляем risk_level
-                for item in combined_results:
-                    item['risk_level'] = self.calculate_risk_level(item.get('cases', 0))
+                for i, data_item in enumerate(all_data, 1):
+                    try:
+                        # Валидация данных перед сохранением
+                        if not self._validate_data_item(data_item):
+                            error_count += 1
+                            self.logger.debug(f"Запись {i} не прошла валидацию: {data_item.get('url', 'unknown')}")
+                            continue
+                        
+                        # Проверяем, существует ли уже такая запись
+                        existing = self.db.get_tick_data_by_url(data_item.get('url'))
+                        if existing:
+                            duplicate_count += 1
+                            # Обновляем существующую запись только если есть изменения
+                            try:
+                                self.db.update_tick_data(existing['id'], data_item)
+                            except Exception as e:
+                                error_count += 1
+                                self.logger.warning(f"Ошибка обновления записи {existing['id']}: {str(e)}")
+                                continue
+                        else:
+                            # Создаем новую запись
+                            try:
+                                self.db.save_tick_data(data_item)
+                                saved_count += 1
+                            except Exception as e:
+                                error_count += 1
+                                self.logger.warning(f"Ошибка сохранения записи {i}: {str(e)}")
+                                continue
+                    except Exception as e:
+                        error_count += 1
+                        self.logger.warning(f"Неожиданная ошибка при обработке записи {i}: {str(e)}")
+                        continue
                 
-                # Сохраняем в БД
-                saved_count = self.db.save_tick_data(combined_results)
-                self.logger.info(f"Данные успешно обновлены. Сохранено новых записей: {saved_count}")
+                summary = f"Сохранено {saved_count} новых записей, обновлено {duplicate_count} существующих, ошибок: {error_count}"
+                if errors_summary:
+                    summary += f", ошибки источников: {', '.join(errors_summary.keys())}"
+                self.logger.info(summary)
             else:
-                self.logger.warning("Новые данные не найдены")
+                if errors_summary:
+                    self.logger.warning(f"Не получено данных из источников. Ошибки: {', '.join(errors_summary.keys())}")
+                else:
+                    self.logger.warning("Не получено данных из источников")
+                
         except Exception as e:
-            self.logger.error(f"Ошибка при обновлении данных: {str(e)}", exc_info=True)
+            self.logger.error(f"Критическая ошибка при обновлении данных: {str(e)}", exc_info=True)
+            raise  # Пробрасываем критическую ошибку выше
+    
+    def _validate_data_item(self, data_item):
+        """Валидация элемента данных перед сохранением"""
+        try:
+            # Проверяем обязательные поля
+            required_fields = ['date', 'cases', 'risk_level', 'source']
+            for field in required_fields:
+                if field not in data_item or data_item[field] is None:
+                    return False
+            
+            # Валидация типов
+            if not isinstance(data_item['date'], date):
+                return False
+            if not isinstance(data_item['cases'], int) or data_item['cases'] < 0:
+                return False
+            if not isinstance(data_item['risk_level'], str) or len(data_item['risk_level']) > 50:
+                return False
+            if not isinstance(data_item['source'], str) or len(data_item['source']) > 200:
+                return False
+            
+            # Проверяем, что дата не в будущем (с небольшим запасом)
+            from datetime import date as date_class
+            today = date_class.today()
+            if data_item['date'] > today:
+                self.logger.warning(f"Дата в будущем: {data_item['date']}, пропускаем")
+                return False
+            
+            return True
+        except Exception as e:
+            self.logger.debug(f"Ошибка валидации: {str(e)}")
+            return False
 

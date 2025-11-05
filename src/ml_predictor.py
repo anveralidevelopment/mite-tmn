@@ -28,31 +28,93 @@ class TickPredictor:
         self.is_trained = False
         
     def prepare_data(self, historical_data):
-        """Подготовка данных для обучения модели"""
+        """Подготовка данных для обучения модели с улучшенной обработкой edge cases"""
         try:
-            if not historical_data or len(historical_data) < 10:
-                logger.warning("Недостаточно данных для обучения модели")
+            # Edge case 1: Пустые или None данные
+            if not historical_data:
+                logger.warning("Исторические данные пусты")
                 return None, None
             
-            # Преобразуем в DataFrame
-            df = pd.DataFrame(historical_data)
-            df['date'] = pd.to_datetime(df['date'])
+            if not isinstance(historical_data, (list, tuple)):
+                logger.warning(f"Неверный тип данных: {type(historical_data)}")
+                return None, None
+            
+            if len(historical_data) < 10:
+                logger.warning(f"Недостаточно данных для обучения модели: {len(historical_data)} < 10")
+                return None, None
+            
+            # Преобразуем в DataFrame с обработкой ошибок
+            try:
+                df = pd.DataFrame(historical_data)
+            except Exception as e:
+                logger.error(f"Ошибка создания DataFrame: {str(e)}")
+                return None, None
+            
+            # Edge case 2: Отсутствие обязательных полей
+            required_fields = ['date', 'cases']
+            missing_fields = [field for field in required_fields if field not in df.columns]
+            if missing_fields:
+                logger.warning(f"Отсутствуют обязательные поля: {missing_fields}")
+                return None, None
+            
+            # Edge case 3: Некорректные даты
+            try:
+                df['date'] = pd.to_datetime(df['date'], errors='coerce')
+                # Удаляем строки с некорректными датами
+                invalid_dates = df['date'].isna().sum()
+                if invalid_dates > 0:
+                    logger.warning(f"Удалено {invalid_dates} записей с некорректными датами")
+                    df = df.dropna(subset=['date'])
+            except Exception as e:
+                logger.error(f"Ошибка конвертации дат: {str(e)}")
+                return None, None
+            
+            # Edge case 4: Некорректные значения cases
+            try:
+                df['cases'] = pd.to_numeric(df['cases'], errors='coerce').fillna(0).astype(int)
+                # Удаляем отрицательные значения (если есть)
+                negative_cases = (df['cases'] < 0).sum()
+                if negative_cases > 0:
+                    logger.warning(f"Исправлено {negative_cases} записей с отрицательными значениями")
+                    df.loc[df['cases'] < 0, 'cases'] = 0
+            except Exception as e:
+                logger.error(f"Ошибка обработки cases: {str(e)}")
+                return None, None
+            
+            if len(df) < 10:
+                logger.warning(f"После очистки недостаточно данных: {len(df)} < 10")
+                return None, None
+            
             df = df.sort_values('date')
             
             # Группируем по неделям для более стабильных прогнозов
-            df['year'] = df['date'].dt.year
-            df['week'] = df['date'].dt.isocalendar().week
-            df['year_week'] = df['year'].astype(str) + '_' + df['week'].astype(str).str.zfill(2)
+            try:
+                df['year'] = df['date'].dt.year
+                df['week'] = df['date'].dt.isocalendar().week
+                df['year_week'] = df['year'].astype(str) + '_' + df['week'].astype(str).str.zfill(2)
+            except Exception as e:
+                logger.error(f"Ошибка группировки по неделям: {str(e)}")
+                return None, None
             
-            weekly_data = df.groupby('year_week').agg({
-                'cases': 'sum',
-                'date': 'min'
-            }).reset_index()
+            try:
+                weekly_data = df.groupby('year_week').agg({
+                    'cases': 'sum',
+                    'date': 'min'
+                }).reset_index()
+            except Exception as e:
+                logger.error(f"Ошибка агрегации данных: {str(e)}")
+                return None, None
             
             weekly_data = weekly_data.sort_values('date')
             
+            # Edge case 5: Недостаточно недель после группировки
             if len(weekly_data) < 8:
-                logger.warning("Недостаточно недельных данных для обучения")
+                logger.warning(f"Недостаточно недельных данных для обучения: {len(weekly_data)} < 8")
+                return None, None
+            
+            # Edge case 6: Все значения cases равны нулю
+            if weekly_data['cases'].sum() == 0:
+                logger.warning("Все значения cases равны нулю")
                 return None, None
             
             # Создаем признаки для модели
@@ -63,26 +125,55 @@ class TickPredictor:
             window_size = 4
             
             for i in range(window_size, len(weekly_data)):
-                # Признаки: значения за последние 4 недели
-                X = weekly_data['cases'].iloc[i-window_size:i].values
-                # Целевая переменная: значение на следующей неделе
-                y = weekly_data['cases'].iloc[i]
-                
-                features.append(X)
-                targets.append(y)
+                try:
+                    # Признаки: значения за последние 4 недели
+                    X = weekly_data['cases'].iloc[i-window_size:i].values
+                    # Целевая переменная: значение на следующей неделе
+                    y = weekly_data['cases'].iloc[i]
+                    
+                    # Edge case 7: Проверка на NaN или inf
+                    if np.any(np.isnan(X)) or np.any(np.isinf(X)) or np.isnan(y) or np.isinf(y):
+                        logger.debug(f"Пропуск примера {i} из-за NaN/Inf значений")
+                        continue
+                    
+                    # Edge case 8: Проверка на разумность значений
+                    if np.any(X < 0) or y < 0:
+                        logger.debug(f"Пропуск примера {i} из-за отрицательных значений")
+                        continue
+                    
+                    features.append(X)
+                    targets.append(y)
+                except Exception as e:
+                    logger.debug(f"Ошибка обработки примера {i}: {str(e)}")
+                    continue
             
+            # Edge case 9: Недостаточно примеров после обработки
             if len(features) < 4:
-                logger.warning("Недостаточно примеров для обучения")
+                logger.warning(f"Недостаточно примеров для обучения после обработки: {len(features)} < 4")
                 return None, None
             
-            X = np.array(features)
-            y = np.array(targets)
+            try:
+                X = np.array(features)
+                y = np.array(targets)
+                
+                # Edge case 10: Проверка финальных массивов
+                if X.size == 0 or y.size == 0:
+                    logger.warning("Пустые массивы после обработки")
+                    return None, None
+                
+                if X.shape[0] != y.shape[0]:
+                    logger.warning(f"Несоответствие размеров: X={X.shape}, y={y.shape}")
+                    return None, None
+                
+            except Exception as e:
+                logger.error(f"Ошибка создания массивов: {str(e)}")
+                return None, None
             
             logger.info(f"Подготовлено {len(X)} примеров для обучения модели")
             return X, y
             
         except Exception as e:
-            logger.error(f"Ошибка при подготовке данных: {str(e)}", exc_info=True)
+            logger.error(f"Критическая ошибка при подготовке данных: {str(e)}", exc_info=True)
             return None, None
     
     def train_model(self, historical_data):
