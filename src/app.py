@@ -40,14 +40,16 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt = JWTManager(app)
 
 # Кэширование
+redis_url = os.getenv('REDIS_URL', 'redis://mite_tmn_redis:6379/0')
 try:
     cache_config = {
         'CACHE_TYPE': 'redis',
-        'CACHE_REDIS_URL': os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
+        'CACHE_REDIS_URL': redis_url,
         'CACHE_DEFAULT_TIMEOUT': 300
     }
     cache = Cache(app, config=cache_config)
-    cache_manager = CacheManager(os.getenv('REDIS_URL'))
+    cache_manager = CacheManager(redis_url)
+    logger.info(f"Redis кэш инициализирован: {redis_url}")
 except Exception as e:
     logger.warning(f"Ошибка инициализации кэша: {str(e)}")
     cache = None
