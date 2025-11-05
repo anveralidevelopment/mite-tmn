@@ -1163,6 +1163,38 @@ class TickParser:
             self.logger.error(f"Критическая ошибка при обновлении данных: {str(e)}", exc_info=True)
             raise  # Пробрасываем критическую ошибку выше
     
+    def _is_tick_season(self, item_date):
+        """Проверка, является ли дата сезоном активности клещей
+        
+        Клещи активны с конца апреля (примерно с 20 числа) по начало октября (до первых заморозков)
+        В Тюменской области это примерно: 20 апреля - 10 октября
+        
+        Args:
+            item_date: date object
+        
+        Returns:
+            bool: True если это сезон активности клещей
+        """
+        if not item_date:
+            return False
+        
+        month = item_date.month
+        
+        # Май, июнь, июль, август, сентябрь - точно сезон
+        if month in [5, 6, 7, 8, 9]:
+            return True
+        
+        # Апрель - с 20 числа
+        if month == 4:
+            return item_date.day >= 20
+        
+        # Октябрь - до 10 числа
+        if month == 10:
+            return item_date.day <= 10
+        
+        # Ноябрь, декабрь, январь, февраль, март - не сезон
+        return False
+    
     def _validate_data_item(self, data_item):
         """Валидация элемента данных перед сохранением"""
         try:
@@ -1188,6 +1220,15 @@ class TickParser:
             if data_item['date'] > today:
                 self.logger.warning(f"Дата в будущем: {data_item['date']}, пропускаем")
                 return False
+            
+            # Проверка сезонности клещей (только если есть случаи укусов)
+            if data_item.get('cases', 0) > 0:
+                if not self._is_tick_season(data_item['date']):
+                    self.logger.warning(
+                        f"Дата {data_item['date']} вне сезона активности клещей "
+                        f"(апрель-октябрь), пропускаем запись с {data_item.get('cases', 0)} случаями"
+                    )
+                    return False
             
             return True
         except Exception as e:

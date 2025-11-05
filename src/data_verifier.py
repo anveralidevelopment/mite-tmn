@@ -83,6 +83,38 @@ class DataVerifier:
             logger.warning(f"Ошибка проверки дубликата: {str(e)}")
             return False, None
     
+    def _is_tick_season(self, item_date):
+        """Проверка, является ли дата сезоном активности клещей
+        
+        Клещи активны с конца апреля (примерно с 20 числа) по начало октября (до первых заморозков)
+        В Тюменской области это примерно: 20 апреля - 10 октября
+        
+        Args:
+            item_date: date object
+        
+        Returns:
+            bool: True если это сезон активности клещей
+        """
+        if not item_date or not isinstance(item_date, date):
+            return False
+        
+        month = item_date.month
+        
+        # Май, июнь, июль, август, сентябрь - точно сезон
+        if month in [5, 6, 7, 8, 9]:
+            return True
+        
+        # Апрель - с 20 числа
+        if month == 4:
+            return item_date.day >= 20
+        
+        # Октябрь - до 10 числа
+        if month == 10:
+            return item_date.day <= 10
+        
+        # Ноябрь, декабрь, январь, февраль, март - не сезон
+        return False
+    
     def verify_data_quality(self, data_item):
         """Проверяет качество данных
         
@@ -119,6 +151,14 @@ class DataVerifier:
                 issues.append("Дата в будущем")
             elif data_item['date'] < date(2020, 1, 1):
                 issues.append("Дата слишком старая")
+            
+            # Проверка сезонности клещей (только если есть случаи укусов)
+            if data_item.get('cases', 0) > 0:
+                if not self._is_tick_season(data_item['date']):
+                    issues.append(
+                        f"Дата {data_item['date']} вне сезона активности клещей "
+                        f"(20 апреля - 10 октября)"
+                    )
         
         # Проверка источника
         if 'source' in data_item:
