@@ -8,6 +8,43 @@ from dateutil import parser as date_parser
 from fake_useragent import UserAgent
 import time
 
+# Опциональные импорты для новых функций
+try:
+    from selenium_parser import SeleniumParser
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    SELENIUM_AVAILABLE = False
+
+try:
+    from pdf_parser import PDFParser
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+
+try:
+    from vk_parser import VKParser
+    VK_AVAILABLE = True
+except ImportError:
+    VK_AVAILABLE = False
+
+try:
+    from local_news_parser import LocalNewsParser
+    LOCAL_NEWS_AVAILABLE = True
+except ImportError:
+    LOCAL_NEWS_AVAILABLE = False
+
+try:
+    from api_integrations import MedicalAPI, WeatherAPI
+    API_AVAILABLE = True
+except ImportError:
+    API_AVAILABLE = False
+
+try:
+    from data_verifier import DataVerifier
+    VERIFIER_AVAILABLE = True
+except ImportError:
+    VERIFIER_AVAILABLE = False
+
 class TickParser:
     """Класс для парсинга данных о клещах"""
     
@@ -17,6 +54,33 @@ class TickParser:
         
         # Загружаем конфигурацию
         self.config = self._load_config()
+        
+        # Инициализация дополнительных парсеров
+        self.selenium_parser = None
+        if SELENIUM_AVAILABLE:
+            try:
+                self.selenium_parser = SeleniumParser(logger_instance=logger, headless=True)
+            except Exception as e:
+                self.logger.warning(f"Не удалось инициализировать Selenium: {str(e)}")
+        
+        self.pdf_parser = PDFParser(logger_instance=logger) if PDF_AVAILABLE else None
+        self.vk_parser = VKParser(self.config, logger_instance=logger) if VK_AVAILABLE else None
+        self.local_news_parser = LocalNewsParser(self.config, logger_instance=logger) if LOCAL_NEWS_AVAILABLE else None
+        
+        # API интеграции
+        self.medical_api = None
+        self.weather_api = None
+        if API_AVAILABLE:
+            medical_config = self.config.get('parsing', {}).get('sources', {}).get('medical_api', {})
+            if medical_config.get('enabled', False):
+                self.medical_api = MedicalAPI(medical_config)
+            
+            weather_config = self.config.get('parsing', {}).get('sources', {}).get('weather_api', {})
+            if weather_config.get('enabled', False):
+                self.weather_api = WeatherAPI(weather_config)
+        
+        # Верификатор данных
+        self.verifier = DataVerifier(db) if VERIFIER_AVAILABLE else None
     
     def _load_config(self):
         """Загрузка конфигурации"""
@@ -969,6 +1033,58 @@ class TickParser:
                 errors_summary['tyumen_news'] = error_msg
                 self.logger.error(error_msg, exc_info=True)
             
+            # Парсинг VK групп
+            try:
+                vk_config = self.config.get('parsing', {}).get('sources', {}).get('vk_tyumen', {})
+                if vk_config.get('enabled', False) and VK_AVAILABLE and self.vk_parser:
+                    vk_url = vk_config.get('url', 'https://vk.com/tyumen')
+                    max_items = vk_config.get('max_items', 20)
+                    vk_data = self.vk_parser.parse_vk_group(vk_url, max_items=max_items)
+                    if vk_data:
+                        all_data.extend(vk_data)
+                        self.logger.info(f"Получено {len(vk_data)} записей из VK")
+            except Exception as e:
+                error_msg = f"Ошибка парсинга VK: {str(e)}"
+                errors_summary['vk'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
+            
+            # Парсинг местных новостных сайтов
+            try:
+                local_news_config = self.config.get('parsing', {}).get('sources', {}).get('local_news', {})
+                if local_news_config.get('enabled', False) and LOCAL_NEWS_AVAILABLE and self.local_news_parser:
+                    local_news_sites = local_news_config.get('sites', [])
+                    for site_config in local_news_sites:
+                        if site_config.get('enabled', False):
+                            try:
+                                site_url = site_config.get('url', '')
+                                site_data = self.local_news_parser.parse_local_news_site(
+                                    site_url,
+                                    search_query='клещ',
+                                    max_items=site_config.get('max_items', 30)
+                                )
+                                if site_data:
+                                    all_data.extend(site_data)
+                                    self.logger.info(f"Получено {len(site_data)} записей с {site_url}")
+                            except Exception as e:
+                                self.logger.warning(f"Ошибка парсинга {site_config.get('url')}: {str(e)}")
+                                continue
+            except Exception as e:
+                error_msg = f"Ошибка парсинга местных новостей: {str(e)}"
+                errors_summary['local_news'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
+            
+            # API медицинских учреждений
+            try:
+                if self.medical_api and self.medical_api.enabled:
+                    medical_data = self.medical_api.get_tick_statistics()
+                    if medical_data:
+                        all_data.extend(medical_data)
+                        self.logger.info(f"Получено {len(medical_data)} записей из API медицинских учреждений")
+            except Exception as e:
+                error_msg = f"Ошибка API медицинских учреждений: {str(e)}"
+                errors_summary['medical_api'] = error_msg
+                self.logger.error(error_msg, exc_info=True)
+            
             # Сохраняем данные в БД с улучшенной обработкой ошибок
             if all_data:
                 self.logger.info(f"Всего получено {len(all_data)} записей, начинаем сохранение в БД")
@@ -984,26 +1100,50 @@ class TickParser:
                             self.logger.debug(f"Запись {i} не прошла валидацию: {data_item.get('url', 'unknown')}")
                             continue
                         
-                        # Проверяем, существует ли уже такая запись
-                        existing = self.db.get_tick_data_by_url(data_item.get('url'))
-                        if existing:
-                            duplicate_count += 1
-                            # Обновляем существующую запись только если есть изменения
-                            try:
-                                self.db.update_tick_data(existing['id'], data_item)
-                            except Exception as e:
+                        # Проверка качества данных через верификатор
+                        if self.verifier:
+                            is_valid, issues = self.verifier.verify_data_quality(data_item)
+                            if not is_valid:
                                 error_count += 1
-                                self.logger.warning(f"Ошибка обновления записи {existing['id']}: {str(e)}")
+                                self.logger.debug(f"Запись {i} не прошла проверку качества: {', '.join(issues)}")
                                 continue
-                        else:
-                            # Создаем новую запись
-                            try:
-                                self.db.save_tick_data(data_item)
-                                saved_count += 1
-                            except Exception as e:
-                                error_count += 1
-                                self.logger.warning(f"Ошибка сохранения записи {i}: {str(e)}")
-                                continue
+                            
+                            # Проверка дубликатов
+                            is_duplicate, existing = self.verifier.is_duplicate(data_item)
+                            if is_duplicate:
+                                duplicate_count += 1
+                                if existing:
+                                    # Обновляем существующую запись
+                                    try:
+                                        self.db.update_tick_data(existing.get('id'), data_item)
+                                    except Exception as e:
+                                        error_count += 1
+                                        self.logger.warning(f"Ошибка обновления записи {existing.get('id')}: {str(e)}")
+                                        continue
+                                else:
+                                    # Дубликат уже обработан
+                                    continue
+                        
+                        # Стандартная проверка дубликатов (если верификатор недоступен)
+                        if not self.verifier:
+                            existing = self.db.get_tick_data_by_url(data_item.get('url'))
+                            if existing:
+                                duplicate_count += 1
+                                try:
+                                    self.db.update_tick_data(existing['id'], data_item)
+                                except Exception as e:
+                                    error_count += 1
+                                    self.logger.warning(f"Ошибка обновления записи {existing['id']}: {str(e)}")
+                                    continue
+                        
+                        # Создаем новую запись
+                        try:
+                            self.db.save_tick_data([data_item])
+                            saved_count += 1
+                        except Exception as e:
+                            error_count += 1
+                            self.logger.warning(f"Ошибка сохранения записи {i}: {str(e)}")
+                            continue
                     except Exception as e:
                         error_count += 1
                         self.logger.warning(f"Неожиданная ошибка при обработке записи {i}: {str(e)}")

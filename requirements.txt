@@ -26,4 +26,9 @@ xgboost>=2.0.0
 flask-limiter>=3.5.0
 prometheus-client>=0.19.0
 python-dotenv>=1.0.0
+selenium>=4.15.0
+PyPDF2>=3.0.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+vkontakte-api>=11.9.1
 

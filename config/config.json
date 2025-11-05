@@ -27,7 +27,35 @@
       },
       "vk_tyumen": {
         "url": "https://vk.com/tyumen",
+        "enabled": false,
         "max_items": 20
+      },
+      "local_news": {
+        "enabled": false,
+        "sites": [
+          {
+            "name": "Тюменская область - новости",
+            "url": "https://tumentoday.ru",
+            "enabled": false,
+            "max_items": 30
+          },
+          {
+            "name": "Тюменский курьер",
+            "url": "https://tumedia.ru",
+            "enabled": false,
+            "max_items": 30
+          }
+        ]
+      },
+      "medical_api": {
+        "enabled": false,
+        "api_url": "",
+        "api_key": ""
+      },
+      "weather_api": {
+        "enabled": false,
+        "api_url": "https://api.openweathermap.org/data/2.5",
+        "api_key": ""
       }
     },
     "timeout": 15,

@@ -286,4 +286,70 @@ class DatabaseManager:
             return []
         finally:
             session.close()
+    
+    def get_tick_data_by_url(self, url):
+        """Получение записи по URL"""
+        session = self.get_session()
+        try:
+            if not url:
+                return None
+            
+            result = session.query(TickData).filter(TickData.url == url).first()
+            
+            if result:
+                return {
+                    'id': result.id,
+                    'date': result.date,
+                    'cases': result.cases,
+                    'risk_level': result.risk_level,
+                    'source': result.source,
+                    'title': result.title,
+                    'content': result.content,
+                    'url': result.url,
+                    'location': result.location
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Ошибка при получении данных по URL: {str(e)}")
+            return None
+        finally:
+            session.close()
+    
+    def update_tick_data(self, record_id, data_item):
+        """Обновление существующей записи"""
+        session = self.get_session()
+        try:
+            record = session.query(TickData).filter(TickData.id == record_id).first()
+            if not record:
+                return False
+            
+            # Обновляем поля
+            if 'date' in data_item:
+                record.date = data_item['date']
+            if 'cases' in data_item:
+                record.cases = data_item['cases']
+            if 'risk_level' in data_item:
+                record.risk_level = data_item['risk_level']
+            elif 'cases' in data_item:
+                record.risk_level = self.calculate_risk_level(data_item['cases'])
+            if 'source' in data_item:
+                record.source = data_item['source']
+            if 'title' in data_item:
+                record.title = data_item['title']
+            if 'content' in data_item:
+                record.content = data_item['content']
+            if 'url' in data_item:
+                record.url = data_item['url']
+            if 'location' in data_item:
+                record.location = data_item['location']
+            
+            record.updated_at = datetime.now()
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Ошибка при обновлении записи: {str(e)}")
+            return False
+        finally:
+            session.close()
 
