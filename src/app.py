@@ -568,6 +568,88 @@ def metrics():
         logger.error(f"Ошибка генерации метрик: {str(e)}")
         return '', 500
 
+@app.route('/api/ml/metrics')
+@cache.cached(timeout=300)
+def ml_metrics():
+    """Метрики качества ML моделей"""
+    try:
+        metrics = ml_predictor.get_model_metrics()
+        return jsonify(metrics)
+    except Exception as e:
+        logger.error(f"Ошибка получения ML метрик: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ml/anomalies')
+@cache.cached(timeout=300)
+def ml_anomalies():
+    """Детекция аномалий в данных"""
+    try:
+        data = db.load_tick_data(limit=1000)
+        anomalies = ml_predictor.detect_anomalies_in_data(data)
+        return jsonify({'anomalies': anomalies, 'count': len(anomalies)})
+    except Exception as e:
+        logger.error(f"Ошибка детекции аномалий: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ml/clusters')
+@cache.cached(timeout=300)
+def ml_clusters():
+    """Кластеризация локаций"""
+    try:
+        data = db.load_tick_data(limit=1000)
+        clusters = ml_predictor.cluster_locations(data)
+        return jsonify(clusters)
+    except Exception as e:
+        logger.error(f"Ошибка кластеризации: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ml/recommendations')
+@cache.cached(timeout=300)
+def ml_recommendations():
+    """Рекомендации по профилактике"""
+    try:
+        historical_data = db.load_tick_data(limit=500)
+        forecast = ml_predictor.get_forecast_for_2026(historical_data)
+        recommendations = ml_predictor.get_prevention_recommendations(forecast)
+        return jsonify(recommendations)
+    except Exception as e:
+        logger.error(f"Ошибка получения рекомендаций: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ml/ab-test', methods=['POST'])
+def ml_ab_test():
+    """Запуск A/B тестирования моделей"""
+    try:
+        data = request.get_json() or {}
+        test_duration = data.get('duration_days', 30)
+        
+        historical_data = db.load_tick_data(limit=1000)
+        results = ml_predictor.ab_test_models(historical_data, test_duration_days=test_duration)
+        return jsonify(results)
+    except Exception as e:
+        logger.error(f"Ошибка A/B тестирования: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/ml/automl', methods=['POST'])
+def ml_automl():
+    """AutoML: автоматический выбор лучшей модели"""
+    try:
+        historical_data = db.load_tick_data(limit=500)
+        best_model = ml_predictor.automl_select_best_model(historical_data)
+        
+        if best_model:
+            metrics = ml_predictor.get_model_metrics()
+            return jsonify({
+                'success': True,
+                'best_model': ml_predictor.best_model_name,
+                'metrics': metrics
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Не удалось выбрать модель'}), 500
+    except Exception as e:
+        logger.error(f"Ошибка AutoML: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/update', methods=['POST'])
 @limiter.limit("5 per hour")
 def update_data():
