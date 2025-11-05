@@ -22,6 +22,7 @@ class TickData(Base):
     title = Column(Text)
     content = Column(Text)
     url = Column(Text)
+    location = Column(String(100))
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
     
@@ -112,6 +113,7 @@ class DatabaseManager:
                     existing.risk_level = risk_level
                     existing.content = item.get('content', '')
                     existing.url = item.get('url', '')
+                    existing.location = item.get('location')
                     existing.updated_at = datetime.now()
                 else:
                     # Создаем новую запись
@@ -122,7 +124,8 @@ class DatabaseManager:
                         source=item.get('source', 'Неизвестно'),
                         title=item.get('title', ''),
                         content=item.get('content', ''),
-                        url=item.get('url', '')
+                        url=item.get('url', ''),
+                        location=item.get('location')
                     )
                     session.add(tick_data)
                     saved_count += 1

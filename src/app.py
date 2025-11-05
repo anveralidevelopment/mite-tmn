@@ -154,6 +154,116 @@ def get_graph_data():
         logger.error(f"Ошибка получения данных графика: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/map-data')
+def get_map_data():
+    """Получение данных для карты"""
+    try:
+        view = request.args.get('view', 'all')
+        
+        if view == 'week':
+            # Данные за последнюю неделю
+            start_date = date.today() - timedelta(days=7)
+            data = db.get_filtered_data(start_date, date.today())
+        elif view == 'month':
+            # Данные за последний месяц
+            start_date = date.today() - timedelta(days=30)
+            data = db.get_filtered_data(start_date, date.today())
+        else:
+            # Все данные
+            data = db.load_tick_data(limit=None, order_by_date_desc=False)
+        
+        # Обрабатываем данные для карты
+        map_data = []
+        for item in data:
+            location = extract_location_from_text(item.get('title', '') + ' ' + item.get('content', ''))
+            if location:
+                coordinates = get_tyumen_region_coordinates(location)
+                if coordinates:
+                    map_data.append({
+                        'lat': coordinates[0],
+                        'lng': coordinates[1],
+                        'location': location,
+                        'cases': item.get('cases', 0),
+                        'date': item['date'].strftime('%d.%m.%Y') if isinstance(item['date'], date) else str(item['date']),
+                        'source': item.get('source', ''),
+                        'title': item.get('title', '')[:50]
+                    })
+        
+        return jsonify({'locations': map_data})
+    except Exception as e:
+        logger.error(f"Ошибка получения данных карты: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+def extract_location_from_text(text):
+    """Извлечение названия населенного пункта из текста"""
+    import re
+    
+    # Список основных населенных пунктов Тюменской области
+    locations = [
+        'Тюмень', 'Тобольск', 'Ишим', 'Ялуторовск', 'Заводоуковск',
+        'Голышманово', 'Вагай', 'Упорово', 'Омутинское', 'Армизонское',
+        'Бердюжье', 'Абатское', 'Викулово', 'Сорокино', 'Юргинское',
+        'Нижняя Тавда', 'Ярково', 'Казанское', 'Исетское', 'Сладково'
+    ]
+    
+    text_lower = text.lower()
+    for location in locations:
+        if location.lower() in text_lower:
+            return location
+    
+    # Попытка найти упоминание района
+    district_patterns = [
+        r'(\w+)\s*район',
+        r'(\w+)\s*округ',
+        r'(\w+)\s*муниципалитет'
+    ]
+    
+    for pattern in district_patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    
+    return None
+
+def get_tyumen_region_coordinates(location):
+    """Получение координат для населенного пункта Тюменской области"""
+    # Координаты основных населенных пунктов
+    coordinates_map = {
+        'Тюмень': [57.1522, 65.5272],
+        'Тобольск': [58.1981, 68.2597],
+        'Ишим': [56.1125, 69.4903],
+        'Ялуторовск': [56.6517, 66.3128],
+        'Заводоуковск': [56.5014, 66.5514],
+        'Голышманово': [56.3989, 68.3697],
+        'Вагай': [57.9353, 69.0278],
+        'Упорово': [56.3189, 66.2708],
+        'Омутинское': [56.4783, 67.6556],
+        'Армизонское': [56.0903, 67.7014],
+        'Бердюжье': [55.8069, 68.5397],
+        'Абатское': [56.2797, 70.4500],
+        'Викулово': [56.8167, 70.6167],
+        'Сорокино': [56.1289, 67.3944],
+        'Юргинское': [56.8250, 67.3958],
+        'Нижняя Тавда': [57.6733, 66.1744],
+        'Ярково': [57.4103, 67.0664],
+        'Казанское': [55.6417, 69.2333],
+        'Исетское': [56.4856, 65.3278],
+        'Сладково': [55.5278, 70.3389]
+    }
+    
+    # Прямое совпадение
+    if location in coordinates_map:
+        return coordinates_map[location]
+    
+    # Поиск по частичному совпадению
+    location_lower = location.lower()
+    for key, coords in coordinates_map.items():
+        if key.lower() in location_lower or location_lower in key.lower():
+            return coords
+    
+    # Если не найдено, возвращаем центр Тюменской области
+    return [57.0, 65.5]
+
 @app.route('/api/update', methods=['POST'])
 def update_data():
     """Обновление данных"""

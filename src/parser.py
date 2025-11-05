@@ -115,13 +115,15 @@ class TickParser:
                     url = base_url + link_elem['href'] if link_elem and link_elem.get('href') else ""
                     
                     if title or content:
+                        location = self.extract_location(title + " " + content)
                         results.append({
                             'date': item_date,
                             'cases': cases,
                             'title': title[:100] if title else "Без заголовка",
                             'content': content[:200] + "..." if len(content) > 200 else content,
                             'url': url,
-                            'source': 'Роспотребнадзор (веб)'
+                            'source': 'Роспотребнадзор (веб)',
+                            'location': location
                         })
                 except Exception as e:
                     self.logger.debug(f"Ошибка обработки новости: {str(e)}")
@@ -163,13 +165,15 @@ class TickParser:
                         if not cases:
                             cases = 0
                         
+                        location = self.extract_location(title + " " + description)
                         results.append({
                             'date': entry_date,
                             'cases': cases,
                             'title': title[:100] if title else "Без заголовка",
                             'content': description[:200] + "..." if len(description) > 200 else description,
                             'url': entry.get('link', ''),
-                            'source': 'Роспотребнадзор (RSS)'
+                            'source': 'Роспотребнадзор (RSS)',
+                            'location': location
                         })
                 except Exception as e:
                     self.logger.debug(f"Ошибка обработки RSS-записи: {str(e)}")
@@ -225,13 +229,15 @@ class TickParser:
                     if not cases:
                         cases = 0
                     
+                    location = self.extract_location(text)
                     results.append({
                         'date': message_date,
                         'cases': cases,
                         'title': text[:100] + "..." if len(text) > 100 else text or "Без заголовка",
                         'content': text[:200] + "..." if len(text) > 200 else text,
                         'url': url,
-                        'source': 'Telegram (Тюмень 72)'
+                        'source': 'Telegram (Тюмень 72)',
+                        'location': location
                     })
                 except Exception as e:
                     self.logger.debug(f"Ошибка обработки сообщения Telegram: {str(e)}")
@@ -243,6 +249,37 @@ class TickParser:
             self.logger.error(f"Ошибка при парсинге Telegram: {str(e)}")
             return []
     
+    def extract_location(self, text):
+        """Извлечение названия населенного пункта из текста"""
+        import re
+        
+        # Список основных населенных пунктов Тюменской области
+        locations = [
+            'Тюмень', 'Тобольск', 'Ишим', 'Ялуторовск', 'Заводоуковск',
+            'Голышманово', 'Вагай', 'Упорово', 'Омутинское', 'Армизонское',
+            'Бердюжье', 'Абатское', 'Викулово', 'Сорокино', 'Юргинское',
+            'Нижняя Тавда', 'Ярково', 'Казанское', 'Исетское', 'Сладково'
+        ]
+        
+        text_lower = text.lower()
+        for location in locations:
+            if location.lower() in text_lower:
+                return location
+        
+        # Попытка найти упоминание района
+        district_patterns = [
+            r'(\w+)\s*район',
+            r'(\w+)\s*округ',
+            r'(\w+)\s*муниципалитет'
+        ]
+        
+        for pattern in district_patterns:
+            match = re.search(pattern, text, re.IGNORECASE)
+            if match:
+                return match.group(1)
+        
+        return None
+
     def extract_case_number(self, text):
         """Извлекает количество случаев из текста"""
         patterns = [
@@ -319,13 +356,24 @@ class TickParser:
             
             web_config = self.config.get('parsing', {}).get('sources', {}).get('rospotrebnadzor_news', {})
             base_url = web_config.get('base_url', 'https://72.rospotrebnadzor.ru')
-            news_url = web_config.get('news_url', f"{base_url}/news/")
+            # Пробуем разные варианты URL
+            news_urls = [
+                f"{base_url}/news",
+                f"{base_url}/press/",
+                f"{base_url}/",
+                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8"
+            ]
             max_items = web_config.get('max_items', 50)
             
-            self.logger.info(f"Парсинг новостей Роспотребнадзора: {news_url}")
-            response = self.make_request_with_retry(news_url, headers)
+            response = None
+            for news_url in news_urls:
+                self.logger.info(f"Попытка парсинга новостей Роспотребнадзора: {news_url}")
+                response = self.make_request_with_retry(news_url, headers)
+                if response and response.status_code == 200:
+                    break
             
-            if not response:
+            if not response or response.status_code != 200:
+                self.logger.warning("Не удалось получить доступ к новостям Роспотребнадзора")
                 return []
             
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -400,13 +448,24 @@ class TickParser:
             }
             
             tyumen_config = self.config.get('parsing', {}).get('sources', {}).get('tyumen_news', {})
-            search_url = tyumen_config.get('search_url', 'https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89')
+            # Пробуем альтернативные URL
+            search_urls = [
+                'https://www.tyumen-city.ru/news/',
+                'https://www.tyumen-city.ru/',
+                'https://t-i.ru/news/',
+                'https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89'
+            ]
             max_items = tyumen_config.get('max_items', 30)
             
-            self.logger.info(f"Парсинг новостей Тюмени: {search_url}")
-            response = self.make_request_with_retry(search_url, headers)
+            response = None
+            for search_url in search_urls:
+                self.logger.info(f"Попытка парсинга новостей Тюмени: {search_url}")
+                response = self.make_request_with_retry(search_url, headers)
+                if response and response.status_code == 200:
+                    break
             
-            if not response:
+            if not response or response.status_code != 200:
+                self.logger.warning("Не удалось получить доступ к новостям Тюмени")
                 return []
             
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -481,15 +540,27 @@ class TickParser:
             web_data = self.parse_web_data()
             rss_data = self.parse_rss_feed()
             telegram_data = self.parse_telegram()
-            rospotrebnadzor_news = self.parse_rospotrebnadzor_news()
-            tyumen_news = self.parse_tyumen_news()
             
             combined_results = []
             combined_results.extend(web_data)
             combined_results.extend(rss_data)
             combined_results.extend(telegram_data)
-            combined_results.extend(rospotrebnadzor_news)
-            combined_results.extend(tyumen_news)
+            
+            # Парсинг новостей Роспотребнадзора (если включен)
+            rospotrebnadzor_config = self.config.get('parsing', {}).get('sources', {}).get('rospotrebnadzor_news', {})
+            if rospotrebnadzor_config.get('enabled', True):
+                rospotrebnadzor_news = self.parse_rospotrebnadzor_news()
+                combined_results.extend(rospotrebnadzor_news)
+            else:
+                rospotrebnadzor_news = []
+            
+            # Парсинг новостей Тюмени (если включен)
+            tyumen_config = self.config.get('parsing', {}).get('sources', {}).get('tyumen_news', {})
+            if tyumen_config.get('enabled', False):
+                tyumen_news = self.parse_tyumen_news()
+                combined_results.extend(tyumen_news)
+            else:
+                tyumen_news = []
             
             self.logger.info(f"Всего найдено: веб={len(web_data)}, RSS={len(rss_data)}, Telegram={len(telegram_data)}, Роспотребнадзор новости={len(rospotrebnadzor_news)}, Тюмень новости={len(tyumen_news)}, всего={len(combined_results)}")
             

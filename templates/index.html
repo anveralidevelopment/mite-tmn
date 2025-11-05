@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор активности клещей - Тюмень</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <div class="container">
@@ -34,6 +36,23 @@
                 <div class="stat-value" id="previousCases">-</div>
                 <div class="stat-date" id="previousDate">-</div>
                 <div class="stat-risk" id="previousRisk">-</div>
+            </div>
+        </div>
+
+        <!-- Map Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Карта активности клещей</h2>
+                <div class="map-controls">
+                    <select id="mapView" class="map-select" onchange="updateMapView()">
+                        <option value="all">Все данные</option>
+                        <option value="week">Последняя неделя</option>
+                        <option value="month">Последний месяц</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="map" class="map-container"></div>
             </div>
         </div>
 

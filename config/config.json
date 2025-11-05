@@ -17,12 +17,12 @@
       },
       "rospotrebnadzor_news": {
         "base_url": "https://72.rospotrebnadzor.ru",
-        "news_url": "https://72.rospotrebnadzor.ru/news/",
+        "enabled": true,
         "max_items": 50
       },
       "tyumen_news": {
         "base_url": "https://www.tyumen-city.ru",
-        "search_url": "https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89",
+        "enabled": false,
         "max_items": 30
       },
       "vk_tyumen": {
