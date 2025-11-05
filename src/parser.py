@@ -52,8 +52,223 @@ class TickParser:
                     return None
         return None
     
+    def parse_search_results_pages(self, base_url, search_url, headers, max_pages=13):
+        """Парсинг всех страниц результатов поиска"""
+        all_article_urls = []
+        
+        for page in range(1, max_pages + 1):
+            try:
+                # Формируем URL для страницы поиска
+                if '?' in search_url:
+                    page_url = f"{search_url}&page={page}"
+                else:
+                    page_url = f"{search_url}?page={page}"
+                
+                self.logger.info(f"Парсинг страницы поиска {page}: {page_url}")
+                response = self.make_request_with_retry(page_url, headers)
+                
+                if not response or response.status_code != 200:
+                    self.logger.debug(f"Не удалось загрузить страницу {page}")
+                    break
+                
+                soup = BeautifulSoup(response.text, 'html.parser')
+                
+                # Ищем ссылки на статьи
+                # По разным вариантам структуры страницы
+                links = []
+                
+                # Вариант 1: ссылки в результатах поиска (div.search-result или div.search-item)
+                search_items = soup.find_all('div', class_='search-result')
+                if not search_items:
+                    search_items = soup.find_all('div', class_='search-item')
+                if not search_items:
+                    # Ищем все div с результатами
+                    search_items = soup.find_all('div', class_=re.compile(r'search|result|item'))
+                
+                for item in search_items:
+                    # Ищем все ссылки внутри элемента
+                    link_elems = item.find_all('a', href=True)
+                    for link_elem in link_elems:
+                        href = link_elem.get('href', '').strip()
+                        if not href:
+                            continue
+                        # Убираем пробелы и лишние символы
+                        href = href.strip()
+                        if href.startswith('/content/') or href.startswith('/news/') or '/content/' in href:
+                            if not href.startswith('http'):
+                                full_url = base_url + href
+                            else:
+                                full_url = href
+                            if full_url not in all_article_urls:
+                                links.append(full_url)
+                                all_article_urls.append(full_url)
+                
+                # Вариант 2: все ссылки на статьи в заголовках
+                title_links = soup.find_all('a', href=re.compile(r'/content/|/news/'))
+                for link in title_links:
+                    href = link.get('href', '')
+                    if href.startswith('/') or base_url in href:
+                        full_url = base_url + href if not href.startswith('http') else href
+                        if full_url not in all_article_urls:
+                            links.append(full_url)
+                            all_article_urls.append(full_url)
+                
+                # Вариант 3: ищем все ссылки, содержащие "content" в URL
+                all_links = soup.find_all('a', href=True)
+                for link in all_links:
+                    href = link.get('href', '')
+                    if '/content/' in href:
+                        full_url = base_url + href if not href.startswith('http') else href
+                        if full_url not in all_article_urls:
+                            links.append(full_url)
+                            all_article_urls.append(full_url)
+                
+                # Проверяем, есть ли следующая страница
+                next_page = soup.find('a', string=re.compile(r'След|Next|›', re.IGNORECASE))
+                if not next_page and page > 1:
+                    # Если нет явной кнопки "Следующая", проверяем пагинацию
+                    pagination = soup.find_all('a', href=re.compile(r'page=\d+'))
+                    if not pagination or page >= max_pages:
+                        break
+                
+                if not links:
+                    self.logger.debug(f"На странице {page} не найдено ссылок, возможно это последняя страница")
+                    break
+                
+                self.logger.info(f"На странице {page} найдено {len(links)} ссылок")
+                time.sleep(1)  # Небольшая задержка между запросами
+                
+            except Exception as e:
+                self.logger.warning(f"Ошибка при парсинге страницы {page}: {str(e)}")
+                break
+        
+        self.logger.info(f"Всего найдено {len(all_article_urls)} уникальных статей")
+        return all_article_urls
+    
+    def parse_article_page(self, article_url, headers):
+        """Парсинг полного содержимого статьи"""
+        try:
+            response = self.make_request_with_retry(article_url, headers)
+            if not response or response.status_code != 200:
+                return None
+            
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Извлекаем заголовок
+            title = ""
+            title_elem = soup.find('h1') or soup.find('h2', class_='title') or soup.find('div', class_='title')
+            if title_elem:
+                title = title_elem.get_text(strip=True)
+            
+            # Извлекаем дату
+            date_text = ""
+            date_elem = soup.find('time') or soup.find('div', class_='date') or soup.find('span', class_='date')
+            if date_elem:
+                date_text = date_elem.get_text(strip=True)
+            
+            # Если дата в атрибуте datetime
+            if not date_text:
+                time_elem = soup.find('time', datetime=True)
+                if time_elem:
+                    date_text = time_elem.get('datetime', '')
+            
+            # Извлекаем полное содержимое статьи
+            content = ""
+            
+            # Ищем основной контент статьи
+            content_selectors = [
+                'div.content',
+                'div.article-content',
+                'div.text',
+                'div.news-content',
+                'article',
+                'div.main-content',
+                'div[class*="content"]',
+                'div[class*="text"]'
+            ]
+            
+            for selector in content_selectors:
+                content_elem = soup.select_one(selector)
+                if content_elem:
+                    # Удаляем скрипты и стили
+                    for script in content_elem(['script', 'style', 'nav', 'footer', 'header']):
+                        script.decompose()
+                    content = content_elem.get_text('\n', strip=True)
+                    if len(content) > 200:  # Если контент достаточно большой
+                        break
+            
+            # Если не нашли, берем весь body
+            if not content or len(content) < 200:
+                body = soup.find('body')
+                if body:
+                    # Удаляем ненужные элементы
+                    for elem in body(['script', 'style', 'nav', 'footer', 'header', 'aside']):
+                        elem.decompose()
+                    content = body.get_text('\n', strip=True)
+            
+            # Парсим дату
+            item_date = None
+            date_patterns = [
+                r'\d{2}\.\d{2}\.\d{4}',
+                r'\d{4}-\d{2}-\d{2}',
+                r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}'
+            ]
+            
+            for pattern in date_patterns:
+                match = re.search(pattern, date_text, re.IGNORECASE)
+                if match:
+                    try:
+                        if 'января' in match.group().lower() or 'февраля' in match.group().lower():
+                            # Формат "01 января 2024"
+                            months_ru = {
+                                'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
+                                'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
+                                'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
+                            }
+                            parts = match.group().split()
+                            if len(parts) >= 3:
+                                day = int(parts[0])
+                                month = months_ru.get(parts[1].lower(), 1)
+                                year = int(parts[2])
+                                item_date = date(year, month, day)
+                        else:
+                            # Формат DD.MM.YYYY или YYYY-MM-DD
+                            if '.' in match.group():
+                                item_date = datetime.strptime(match.group(), '%d.%m.%Y').date()
+                            else:
+                                item_date = datetime.strptime(match.group(), '%Y-%m-%d').date()
+                        break
+                    except:
+                        continue
+            
+            # Если дата не найдена, используем текущую дату
+            if not item_date:
+                item_date = date.today()
+            
+            # Извлекаем количество случаев
+            cases = self.extract_case_number(title + " " + content)
+            if not cases and any(word in (title + " " + content).lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
+                cases = 0
+            
+            # Извлекаем локацию
+            location = self.extract_location(title + " " + content)
+            
+            return {
+                'date': item_date,
+                'cases': cases,
+                'title': title[:200] if title else "Без заголовка",
+                'content': content[:5000] if len(content) > 5000 else content,  # Ограничиваем размер
+                'url': article_url,
+                'source': 'Роспотребнадзор (поиск)',
+                'location': location
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Ошибка при парсинге статьи {article_url}: {str(e)}")
+            return None
+    
     def parse_web_data(self):
-        """Парсинг данных с веб-сайта"""
+        """Парсинг данных с веб-сайта через поиск"""
         try:
             ua = UserAgent()
             headers = {
@@ -64,93 +279,40 @@ class TickParser:
             
             web_config = self.config.get('parsing', {}).get('sources', {}).get('web', {})
             base_url = web_config.get('base_url', 'https://72.rospotrebnadzor.ru')
-            max_items = web_config.get('max_items', 100)
+            max_items = web_config.get('max_items', 200)
             
-            # Пробуем разные варианты URL для поиска
-            search_urls = [
-                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8",  # Основной поиск
-                f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89",  # Альтернативный поиск
-                f"{base_url}/search/",  # Общая страница поиска
-                f"{base_url}/news/",  # Страница новостей
-                f"{base_url}/press/",  # Пресс-релизы
-                f"{base_url}/",  # Главная страница
-                f"{base_url}/category/news/",  # Категория новостей
-            ]
+            # URL поиска с клещами
+            search_url = f"{base_url}/search/?q=клещи&spell=1&where="
             
-            response = None
-            for search_url in search_urls:
-                self.logger.info(f"Попытка парсинга веб-сайта: {search_url}")
-                response = self.make_request_with_retry(search_url, headers)
-                if response and response.status_code == 200:
-                    self.logger.info(f"Успешно получен доступ к: {search_url}")
-                    break
-                else:
-                    self.logger.debug(f"Не удалось получить доступ к: {search_url}")
+            self.logger.info(f"Начинаем парсинг поиска: {search_url}")
             
-            if not response or response.status_code != 200:
-                self.logger.warning("Не удалось получить доступ ни к одному URL веб-сайта Роспотребнадзора")
+            # Парсим все страницы результатов поиска
+            article_urls = self.parse_search_results_pages(base_url, search_url, headers, max_pages=13)
+            
+            if not article_urls:
+                self.logger.warning("Не найдено статей в результатах поиска")
                 return []
             
-            soup = BeautifulSoup(response.text, 'html.parser')
+            # Ограничиваем количество статей
+            article_urls = article_urls[:max_items]
+            
+            # Парсим каждую статью
             results = []
-            
-            news_items = soup.find_all('div', class_='search-item')
-            if not news_items:
-                news_items = soup.find_all('div', class_='news-item')
-            if not news_items:
-                news_items = soup.find_all('article')
-            
-            news_items = news_items[:max_items]
-            
-            for item in news_items:
+            for i, article_url in enumerate(article_urls, 1):
                 try:
-                    title_elem = item.find('a', class_='search-title') or item.find('a', class_='title') or item.find('h3') or item.find('h2') or item.find('a')
-                    if not title_elem:
-                        continue
-                    title = title_elem.text.strip() if title_elem else ""
-                    
-                    date_elem = item.find('div', class_='search-date') or item.find('div', class_='date') or item.find('time')
-                    date_text = date_elem.text.strip() if date_elem else ""
-                    
-                    content_elem = item.find('div', class_='search-text') or item.find('div', class_='content') or item.find('p')
-                    content = content_elem.text.strip() if content_elem else ""
-                    
-                    date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', date_text)
-                    if not date_match:
-                        date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
-                        if date_match:
-                            item_date = datetime.strptime(date_match.group(), '%Y-%m-%d').date()
-                        else:
-                            continue
-                    else:
-                        item_date = datetime.strptime(date_match.group(), '%d.%m.%Y').date()
-                    
-                    cases = self.extract_case_number(title + " " + content)
-                    if not cases and any(word in (title + " " + content).lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
-                        cases = 0
-                    
-                    link_elem = item.find('a')
-                    url = base_url + link_elem['href'] if link_elem and link_elem.get('href') else ""
-                    
-                    if title or content:
-                        location = self.extract_location(title + " " + content)
-                        results.append({
-                            'date': item_date,
-                            'cases': cases,
-                            'title': title[:100] if title else "Без заголовка",
-                            'content': content[:200] + "..." if len(content) > 200 else content,
-                            'url': url,
-                            'source': 'Роспотребнадзор (веб)',
-                            'location': location
-                        })
+                    self.logger.info(f"Парсинг статьи {i}/{len(article_urls)}: {article_url}")
+                    article_data = self.parse_article_page(article_url, headers)
+                    if article_data:
+                        results.append(article_data)
+                    time.sleep(0.5)  # Небольшая задержка между запросами
                 except Exception as e:
-                    self.logger.debug(f"Ошибка обработки новости: {str(e)}")
+                    self.logger.warning(f"Ошибка при парсинге статьи {article_url}: {str(e)}")
                     continue
             
-            self.logger.info(f"Получено {len(results)} записей с веб-сайта")
+            self.logger.info(f"Получено {len(results)} записей с веб-сайта через поиск")
             return results
         except Exception as e:
-            self.logger.error(f"Ошибка при парсинге веб-сайта: {str(e)}")
+            self.logger.error(f"Ошибка при парсинге веб-сайта: {str(e)}", exc_info=True)
             return []
     
     def parse_rss_feed(self):

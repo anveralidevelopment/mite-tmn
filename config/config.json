@@ -51,6 +51,37 @@
     "file": "logs/app.log",
     "max_bytes": 10485760,
     "backup_count": 5
+  },
+  "cache": {
+    "enabled": true,
+    "default_timeout": 300
+  },
+  "mail": {
+    "enabled": false,
+    "server": "smtp.gmail.com",
+    "port": 587,
+    "use_tls": true,
+    "username": "",
+    "password": "",
+    "from": "",
+    "recipients": []
+  },
+  "telegram": {
+    "bot": {
+      "enabled": false,
+      "token": "",
+      "chat_ids": []
+    }
+  },
+  "notifications": {
+    "spike_threshold": 1.5,
+    "high_activity_threshold": 10,
+    "enabled": true
+  },
+  "auth": {
+    "enabled": false,
+    "jwt_secret_key": "change-this-secret-key",
+    "jwt_expiration": 3600
   }
 }
 

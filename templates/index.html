@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Монитор активности клещей - Тюмень</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2.1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2.3">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -17,11 +17,34 @@
                 <h1 class="logo">Монитор активности клещей</h1>
                 <p class="subtitle">Тюменская область</p>
             </div>
-            <button class="btn btn-primary" id="updateBtn" onclick="updateData()">
-                <span class="btn-icon">↻</span>
-                Обновить данные
-            </button>
+            <div class="header-actions">
+                <button class="btn btn-secondary" id="exportBtn" onclick="showExportMenu()">
+                    <span class="btn-icon">📥</span>
+                    Экспорт
+                </button>
+                <button class="btn btn-secondary" id="themeBtn" onclick="toggleTheme()">
+                    <span class="btn-icon">🌙</span>
+                    Тема
+                </button>
+                <button class="btn btn-primary" id="updateBtn" onclick="updateData()">
+                    <span class="btn-icon">↻</span>
+                    Обновить данные
+                </button>
+            </div>
         </header>
+        
+        <!-- Export Menu -->
+        <div id="exportMenu" class="export-menu" style="display: none;">
+            <div class="export-menu-content">
+                <h3>Экспорт данных</h3>
+                <div class="export-options">
+                    <button class="btn btn-export" onclick="exportData('csv')">📄 CSV</button>
+                    <button class="btn btn-export" onclick="exportData('excel')">📊 Excel</button>
+                    <button class="btn btn-export" onclick="exportData('pdf')">📑 PDF</button>
+                </div>
+                <button class="btn btn-close" onclick="hideExportMenu()">Закрыть</button>
+            </div>
+        </div>
 
         <!-- Stats Cards -->
         <div class="stats-grid">
@@ -56,6 +79,16 @@
             </div>
         </div>
 
+        <!-- Analytics Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Сравнение с предыдущими годами</h2>
+            </div>
+            <div class="card-body">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
         <!-- Graph Section -->
         <div class="card">
             <div class="card-header">
@@ -64,6 +97,7 @@
                     <input type="date" id="startDate" class="date-input">
                     <input type="date" id="endDate" class="date-input">
                     <button class="btn btn-secondary" onclick="applyFilter()">Применить фильтр</button>
+                    <button class="btn btn-secondary" onclick="clearFilter()">Сбросить</button>
                 </div>
             </div>
             <div class="card-body">
@@ -71,10 +105,77 @@
             </div>
         </div>
 
-        <!-- Sources Section -->
+        <!-- Sources Section with Filters -->
         <div class="card">
             <div class="card-header">
                 <h2>Источники данных</h2>
+                <div class="filter-group">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск..." onkeyup="applySourceFilters()">
+                    <select id="locationFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все локации</option>
+                    </select>
+                    <select id="sourceFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все источники</option>
+                    </select>
+                    <select id="riskFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все уровни риска</option>
+                        <option value="Низкий">Низкий</option>
+                        <option value="Умеренный">Умеренный</option>
+                        <option value="Высокий">Высокий</option>
+                        <option value="Очень высокий">Очень высокий</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- News Feed Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Лента новостей</h2>
+                <p class="card-subtitle">Автоматически сгенерированные сообщения на основе анализа данных</p>
+            </div>
+            <div class="card-body">
+                <div id="newsFeed" class="news-feed">
+                    <div class="loading">Загрузка новостей...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forecast Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Прогноз активности на 2026 год</h2>
+                <p class="card-subtitle">На основе ML анализа данных за 2024-2025 годы</p>
+            </div>
+            <div class="card-body">
+                <canvas id="forecastChart"></canvas>
+                <div id="forecastTable" class="forecast-table"></div>
+            </div>
+        </div>
+
+        <!-- Sources Section with Filters -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Источники данных</h2>
+                <div class="filter-group">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Поиск..." onkeyup="applySourceFilters()">
+                    <select id="locationFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все локации</option>
+                    </select>
+                    <select id="sourceFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все источники</option>
+                    </select>
+                    <select id="riskFilter" class="filter-select" onchange="applySourceFilters()">
+                        <option value="">Все уровни риска</option>
+                        <option value="Низкий">Низкий</option>
+                        <option value="Умеренный">Умеренный</option>
+                        <option value="Высокий">Высокий</option>
+                        <option value="Очень высокий">Очень высокий</option>
+                    </select>
+                </div>
             </div>
             <div class="card-body">
                 <div id="sourcesList" class="sources-list">
@@ -84,18 +185,18 @@
         </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
-        <div class="spinner"></div>
-        <p>Обновление данных...</p>
-    </div>
-
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <p>Разработано в <a href="https://anverali.ru/" target="_blank" rel="noopener noreferrer">Анверали</a></p>
         </div>
     </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Обновление данных...</p>
+    </div>
 
     <script src="{{ url_for('static', filename='app.js') }}?v=2.2"></script>
 </body>
