@@ -175,7 +175,11 @@ def get_map_data():
         # Обрабатываем данные для карты
         map_data = []
         for item in data:
-            location = extract_location_from_text(item.get('title', '') + ' ' + item.get('content', ''))
+            # Используем сохраненную локацию или извлекаем из текста
+            location = item.get('location')
+            if not location:
+                location = extract_location_from_text(item.get('title', '') + ' ' + item.get('content', ''))
+            
             if location:
                 coordinates = get_tyumen_region_coordinates(location)
                 if coordinates:

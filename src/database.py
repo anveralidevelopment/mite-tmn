@@ -166,7 +166,8 @@ class DatabaseManager:
                     'source': record.source,
                     'title': record.title or '',
                     'content': record.content or '',
-                    'url': record.url or ''
+                    'url': record.url or '',
+                    'location': record.location
                 })
             
             logger.info(f"Загружено {len(data_list)} записей из БД")
