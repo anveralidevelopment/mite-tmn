@@ -765,25 +765,13 @@ class TickParser:
             
             for item in news_items:
                 try:
-                    title_elem = item.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=['title', 'news-title', 'article-title'])
-                    if not title_elem:
-                        title_elem = item.find(['h1', 'h2', 'h3', 'h4'])
-                    if not title_elem:
-                        continue
                     # Извлекаем заголовок и содержимое
-                    title_elem = item.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=['title', 'news-title', 'article-title'])
-                    if not title_elem:
-                        title_elem = item.find(['h1', 'h2', 'h3', 'h4'])
-                    if not title_elem:
+                    title, content = self.extract_text_content(soup, item_elem=item)
+                    if not title:
                         continue
-                    title = title_elem.text.strip() if title_elem else ""
                     
                     # Извлекаем дату
                     date_text = self.extract_date_from_html(soup, item_elem=item)
-                    
-                    # Извлекаем содержимое
-                    content_elem = item.find(['div', 'p'], class_=['content', 'text', 'description', 'excerpt'])
-                    content = content_elem.text.strip() if content_elem else ""
                     
                     # Парсим дату
                     item_date = self.parse_date_from_text(date_text)
