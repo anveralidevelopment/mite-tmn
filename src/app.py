@@ -114,9 +114,9 @@ def auto_update_worker():
             if os.path.exists(config_path):
                 with open(config_path, 'r', encoding='utf-8') as f:
                     config = json.load(f)
-                    interval_minutes = config.get('parsing', {}).get('auto_update_interval_minutes', 20)
+                    interval_minutes = config.get('parsing', {}).get('auto_update_interval_minutes', 1440)
             else:
-                interval_minutes = 20
+                interval_minutes = 1440
             
             logger.info(f"Автоматическое обновление данных запущено (интервал: {interval_minutes} минут)")
             parser.update_all_data()

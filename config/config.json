@@ -61,7 +61,7 @@
     "timeout": 15,
     "retry_count": 3,
     "retry_delay": 2,
-    "auto_update_interval_minutes": 20
+    "auto_update_interval_minutes": 1440
   },
   "risk_levels": {
     "low": {"threshold": 50, "color": "#00ff00"},
