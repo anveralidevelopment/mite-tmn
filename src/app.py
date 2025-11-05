@@ -21,6 +21,13 @@ from notifications import NotificationManager
 from export_manager import ExportManager
 from swagger_docs import get_swagger_json
 
+# Импорт WeatherAPI для интеграции с ML
+try:
+    from api_integrations import WeatherAPI
+    WEATHER_API_AVAILABLE = True
+except ImportError:
+    WEATHER_API_AVAILABLE = False
+
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 logger = setup_logger()
 
@@ -70,7 +77,23 @@ ml_predictions = Counter('ml_predictions_total', 'Total ML predictions made')
 database_url = os.getenv('DATABASE_URL', 'postgresql://mite_user:mite_password@db:5432/mite_tmn')
 db = DatabaseManager(database_url)
 parser = TickParser(db, logger)
-ml_predictor = TickPredictor(db)
+# Инициализация WeatherAPI для ML
+weather_api = None
+if WEATHER_API_AVAILABLE:
+    try:
+        import json
+        import os
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config', 'config.json')
+        if os.path.exists(config_path):
+            with open(config_path, 'r', encoding='utf-8') as f:
+                config = json.load(f)
+                weather_config = config.get('parsing', {}).get('sources', {}).get('weather_api', {})
+                if weather_config.get('enabled', False):
+                    weather_api = WeatherAPI(weather_config)
+    except Exception as e:
+        logger.warning(f"Не удалось инициализировать WeatherAPI: {str(e)}")
+
+ml_predictor = TickPredictor(db, weather_api=weather_api)
 notification_manager = NotificationManager(app)
 export_manager = ExportManager()
 

@@ -15,17 +15,59 @@ import os
 import json
 from logger_config import setup_logger
 
+# Импорт улучшенных модулей
+try:
+    from enhanced_ml_predictor import (
+        ModelMetrics, FeatureEngineering, LSTMModel, GRUModel,
+        EnsembleModel, AnomalyDetector, LocationClusterer, PreventionRecommendations
+    )
+    ENHANCED_ML_AVAILABLE = True
+    
+    # Проверка доступности библиотек
+    try:
+        from xgboost import XGBRegressor
+        XGBOOST_AVAILABLE = True
+    except ImportError:
+        XGBOOST_AVAILABLE = False
+    
+    try:
+        import tensorflow as tf
+        TENSORFLOW_AVAILABLE = True
+    except ImportError:
+        TENSORFLOW_AVAILABLE = False
+except ImportError:
+    ENHANCED_ML_AVAILABLE = False
+    XGBOOST_AVAILABLE = False
+    TENSORFLOW_AVAILABLE = False
+    logger.warning("Улучшенные ML модули недоступны, используются базовые модели")
+
 logger = setup_logger()
 
 
 class TickPredictor:
     """Класс для прогнозирования активности клещей с помощью ML"""
     
-    def __init__(self, db):
+    def __init__(self, db, weather_api=None):
         self.db = db
         self.model = None
         self.scaler = StandardScaler()
         self.is_trained = False
+        
+        # Улучшенные компоненты
+        self.feature_engineering = FeatureEngineering(weather_api=weather_api) if ENHANCED_ML_AVAILABLE else None
+        self.model_metrics = ModelMetrics() if ENHANCED_ML_AVAILABLE else None
+        self.anomaly_detector = AnomalyDetector() if ENHANCED_ML_AVAILABLE else None
+        self.location_clusterer = LocationClusterer() if ENHANCED_ML_AVAILABLE else None
+        self.prevention_recommendations = PreventionRecommendations() if ENHANCED_ML_AVAILABLE else None
+        
+        # Модели для ансамбля
+        self.models = {}
+        self.best_model_name = None
+        self.model_metrics_history = {}
+        
+        # A/B тестирование
+        self.ab_test_models = {}
+        self.ab_test_results = {}
         
     def prepare_data(self, historical_data):
         """Подготовка данных для обучения модели с улучшенной обработкой edge cases"""
@@ -200,54 +242,58 @@ class TickPredictor:
             # Нормализуем данные
             X_train_scaled = self.scaler.fit_transform(X_train)
             
-            # Пробуем несколько моделей и выбираем лучшую
-            try:
-                from xgboost import XGBRegressor
-                xgboost_available = True
-            except ImportError:
-                xgboost_available = False
-                logger.debug("XGBoost недоступен, используем только scikit-learn модели")
-            
-            models = {
-                'linear': LinearRegression(),
-                'random_forest': RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)
-            }
-            
-            if xgboost_available:
-                models['xgboost'] = XGBRegressor(n_estimators=100, max_depth=5, random_state=42, verbosity=0)
-            
-            best_model = None
-            best_score = float('inf')
-            
-            for name, model in models.items():
+            # Используем улучшенное обучение с метриками и ансамблем
+            if ENHANCED_ML_AVAILABLE and self.model_metrics:
+                return self._train_enhanced_models(X_train, X_test, y_train, y_test, X_train_scaled, X_test_scaled)
+            else:
+                # Базовое обучение (старый код)
                 try:
-                    model.fit(X_train_scaled, y_train)
-                    
-                    if X_test is not None:
-                        X_test_scaled = self.scaler.transform(X_test)
-                        y_pred = model.predict(X_test_scaled)
-                        score = mean_absolute_error(y_test, y_pred)
-                    else:
-                        y_pred_train = model.predict(X_train_scaled)
-                        score = mean_absolute_error(y_train, y_pred_train)
-                    
-                    if score < best_score:
-                        best_score = score
-                        best_model = model
-                        logger.info(f"Модель {name} показала MAE: {score:.2f}")
-                except Exception as e:
-                    logger.warning(f"Ошибка при обучении модели {name}: {str(e)}")
-                    continue
-            
-            if best_model is None:
-                logger.error("Не удалось обучить ни одну модель")
-                return False
-            
-            self.model = best_model
-            self.is_trained = True
-            
-            logger.info(f"Модель успешно обучена. Лучшая MAE: {best_score:.2f}")
-            return True
+                    from xgboost import XGBRegressor
+                    xgboost_available = True
+                except ImportError:
+                    xgboost_available = False
+                    logger.debug("XGBoost недоступен, используем только scikit-learn модели")
+                
+                models = {
+                    'linear': LinearRegression(),
+                    'random_forest': RandomForestRegressor(n_estimators=100, max_depth=5, random_state=42)
+                }
+                
+                if xgboost_available:
+                    models['xgboost'] = XGBRegressor(n_estimators=100, max_depth=5, random_state=42, verbosity=0)
+                
+                best_model = None
+                best_score = float('inf')
+                
+                for name, model in models.items():
+                    try:
+                        model.fit(X_train_scaled, y_train)
+                        
+                        if X_test is not None:
+                            X_test_scaled = self.scaler.transform(X_test)
+                            y_pred = model.predict(X_test_scaled)
+                            score = mean_absolute_error(y_test, y_pred)
+                        else:
+                            y_pred_train = model.predict(X_train_scaled)
+                            score = mean_absolute_error(y_train, y_pred_train)
+                        
+                        if score < best_score:
+                            best_score = score
+                            best_model = model
+                            logger.info(f"Модель {name} показала MAE: {score:.2f}")
+                    except Exception as e:
+                        logger.warning(f"Ошибка при обучении модели {name}: {str(e)}")
+                        continue
+                
+                if best_model is None:
+                    logger.error("Не удалось обучить ни одну модель")
+                    return False
+                
+                self.model = best_model
+                self.is_trained = True
+                
+                logger.info(f"Модель успешно обучена. Лучшая MAE: {best_score:.2f}")
+                return True
             
         except Exception as e:
             logger.error(f"Ошибка при обучении модели: {str(e)}", exc_info=True)
