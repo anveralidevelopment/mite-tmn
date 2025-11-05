@@ -154,192 +154,23 @@ class TickParser:
             
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Извлекаем заголовок
-            title = ""
-            title_elem = soup.find('h1') or soup.find('h2', class_='title') or soup.find('div', class_='title')
-            if title_elem:
-                title = title_elem.get_text(strip=True)
+            # Извлекаем заголовок и содержимое
+            title, content = self.extract_text_content(soup)
             
-            # Извлекаем дату - ищем в разных местах
-            date_text = ""
+            # Извлекаем дату
+            date_text = self.extract_date_from_html(soup)
             
-            # 1. Ищем в атрибуте datetime
-            time_elem = soup.find('time', datetime=True)
-            if time_elem:
-                date_text = time_elem.get('datetime', '')
+            # Парсим дату
+            item_date = self.parse_date_from_text(date_text, url=article_url)
             
-            # 2. Ищем в элементах с классом date
-            if not date_text:
-                date_elem = (soup.find('time') or 
-                           soup.find('div', class_=re.compile(r'date|time|published', re.I)) or 
-                           soup.find('span', class_=re.compile(r'date|time|published', re.I)) or
-                           soup.find('p', class_=re.compile(r'date|time|published', re.I)))
-                if date_elem:
-                    date_text = date_elem.get_text(strip=True)
-                    # Если не нашли текст, пробуем атрибут datetime
-                    if not date_text and date_elem.has_attr('datetime'):
-                        date_text = date_elem.get('datetime', '')
-            
-            # 3. Ищем дату в заголовке страницы (meta теги)
-            if not date_text:
-                meta_date = soup.find('meta', property='article:published_time') or \
-                           soup.find('meta', attrs={'name': re.compile(r'date|published', re.I)})
-                if meta_date:
-                    date_text = meta_date.get('content', '')
-            
-            # 4. Ищем дату в тексте страницы (в начале статьи)
-            if not date_text:
-                # Ищем в первых параграфах или в начале контента
-                body_text = soup.get_text()
-                # Ищем дату в формате DD.MM.YYYY или YYYY-MM-DD в первых 2000 символах
-                date_patterns = [
-                    r'\d{2}\.\d{2}\.\d{4}',
-                    r'\d{4}-\d{2}-\d{2}',
-                    r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}'
-                ]
-                
-                preview_text = body_text[:2000]  # Первые 2000 символов
-                for pattern in date_patterns:
-                    match = re.search(pattern, preview_text, re.IGNORECASE)
-                    if match:
-                        date_text = match.group()
-                        # Проверяем, что это похоже на дату (не просто число в тексте)
-                        # Проверяем контекст вокруг даты
-                        start_pos = max(0, match.start() - 20)
-                        end_pos = min(len(preview_text), match.end() + 20)
-                        context = preview_text[start_pos:end_pos].lower()
-                        # Если рядом есть слова "дата", "опубликовано", "создано" и т.д., это точно дата
-                        if any(word in context for word in ['дата', 'опубликовано', 'создано', 'дата:', 'от']):
-                            break
-                        # Или если это формат DD.MM.YYYY и год между 2020 и 2025
-                        if re.match(r'\d{2}\.\d{2}\.20[2-4]\d', match.group()):
-                            break
-                        # Или если это формат YYYY-MM-DD
-                        if re.match(r'20[2-4]\d-\d{2}-\d{2}', match.group()):
-                            break
-            
-            # Извлекаем полное содержимое статьи
-            content = ""
-            
-            # Ищем основной контент статьи
-            content_selectors = [
-                'div.content',
-                'div.article-content',
-                'div.text',
-                'div.news-content',
-                'article',
-                'div.main-content',
-                'div[class*="content"]',
-                'div[class*="text"]'
-            ]
-            
-            for selector in content_selectors:
-                content_elem = soup.select_one(selector)
-                if content_elem:
-                    # Удаляем скрипты и стили
-                    for script in content_elem(['script', 'style', 'nav', 'footer', 'header']):
-                        script.decompose()
-                    content = content_elem.get_text('\n', strip=True)
-                    if len(content) > 200:  # Если контент достаточно большой
-                        break
-            
-            # Если не нашли, берем весь body
-            if not content or len(content) < 200:
-                body = soup.find('body')
-                if body:
-                    # Удаляем ненужные элементы
-                    for elem in body(['script', 'style', 'nav', 'footer', 'header', 'aside']):
-                        elem.decompose()
-                    content = body.get_text('\n', strip=True)
-            
-            # Парсим дату с улучшенной логикой
-            item_date = None
-            
-            # Сначала пытаемся распарсить через dateutil (более гибкий)
-            if date_text:
-                try:
-                    parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
-                    if parsed_date:
-                        item_date = parsed_date.date()
-                except:
-                    pass
-            
-            # Если dateutil не сработал, пробуем регулярные выражения
-            if not item_date and date_text:
-                date_patterns = [
-                    (r'\d{2}\.\d{2}\.\d{4}', '%d.%m.%Y'),
-                    (r'\d{4}-\d{2}-\d{2}', '%Y-%m-%d'),
-                    (r'\d{1,2}\.\d{1,2}\.\d{4}', '%d.%m.%Y'),
-                    (r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}', None)
-                ]
-                
-                for pattern, date_format in date_patterns:
-                    match = re.search(pattern, date_text, re.IGNORECASE)
-                    if match:
-                        try:
-                            if date_format:
-                                # Формат DD.MM.YYYY или YYYY-MM-DD
-                                item_date = datetime.strptime(match.group(), date_format).date()
-                            else:
-                                # Формат "01 января 2024"
-                                months_ru = {
-                                    'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
-                                    'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
-                                    'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
-                                }
-                                parts = match.group().split()
-                                if len(parts) >= 3:
-                                    day = int(parts[0])
-                                    month = months_ru.get(parts[1].lower(), 1)
-                                    year = int(parts[2])
-                                    item_date = date(year, month, day)
-                            
-                            # Валидация даты
-                            if item_date:
-                                today = date.today()
-                                # Проверяем, что дата не в будущем (с небольшим запасом на 1 день)
-                                if item_date > today:
-                                    self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
-                                    item_date = today
-                                # Проверяем, что дата не слишком старая (не раньше 2020 года)
-                                elif item_date < date(2020, 1, 1):
-                                    self.logger.warning(f"Дата слишком старая: {item_date}, пропускаем запись")
-                                    item_date = None
-                                    return None  # Пропускаем запись со слишком старой датой
-                            
-                            break
-                        except Exception as e:
-                            self.logger.debug(f"Ошибка парсинга даты '{match.group()}': {str(e)}")
-                            continue
-            
-            # Если дата не найдена, пытаемся извлечь из URL
-            if not item_date:
-                # Ищем дату в URL (например, /2024/05/03/)
-                url_date_match = re.search(r'/(\d{4})/(\d{2})/(\d{2})/', article_url)
-                if url_date_match:
-                    try:
-                        year = int(url_date_match.group(1))
-                        month = int(url_date_match.group(2))
-                        day = int(url_date_match.group(3))
-                        item_date = date(year, month, day)
-                        # Валидация
-                        today = date.today()
-                        if item_date > today:
-                            item_date = today
-                        elif item_date < date(2020, 1, 1):
-                            item_date = None
-                            return None
-                    except:
-                        pass
-            
-            # Если дата все еще не найдена, логируем и пропускаем запись
+            # Если дата не найдена, пропускаем запись
             if not item_date:
                 self.logger.warning(f"Не удалось определить дату для статьи {article_url}, пропускаем запись")
-                return None  # Пропускаем записи без даты вместо использования текущей даты
+                return None
             
             # Извлекаем количество случаев
             cases = self.extract_case_number(title + " " + content)
-            if not cases and any(word in (title + " " + content).lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
+            if not cases and self.has_tick_keywords(title + " " + content):
                 cases = 0
             
             # Извлекаем локацию
@@ -430,9 +261,9 @@ class TickParser:
                     
                     title = entry.get('title', '')
                     description = entry.get('description', '')
-                    text = (title + " " + description).lower()
+                    text = title + " " + description
                     
-                    if any(word in text for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
+                    if self.has_tick_keywords(text):
                         cases = self.extract_case_number(title + " " + description)
                         if not cases:
                             cases = 0
@@ -489,7 +320,7 @@ class TickParser:
                     
                     text = message.find('div', class_='tgme_widget_message_text').get_text('\n', strip=True)
                     
-                    if not any(word in text.lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван']):
+                    if not self.has_tick_keywords(text):
                         continue
                     
                     time_tag = message.find('time', class_='time')
@@ -551,6 +382,269 @@ class TickParser:
                 return match.group(1)
         
         return None
+    
+    def parse_date_from_text(self, date_text, url=None, allow_future=False):
+        """Универсальный метод парсинга даты из текста
+        
+        Args:
+            date_text: Текст с датой
+            url: URL для извлечения даты из пути (опционально)
+            allow_future: Разрешить даты в будущем (по умолчанию False)
+        
+        Returns:
+            date object или None если дата не найдена
+        """
+        if not date_text and not url:
+            return None
+        
+        item_date = None
+        
+        # Сначала пытаемся распарсить через dateutil (более гибкий)
+        if date_text:
+            try:
+                parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
+                if parsed_date:
+                    item_date = parsed_date.date()
+            except:
+                pass
+        
+        # Если dateutil не сработал, пробуем регулярные выражения
+        if not item_date and date_text:
+            date_patterns = [
+                (r'\d{2}\.\d{2}\.\d{4}', '%d.%m.%Y'),
+                (r'\d{4}-\d{2}-\d{2}', '%Y-%m-%d'),
+                (r'\d{1,2}\.\d{1,2}\.\d{4}', '%d.%m.%Y'),
+                (r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}', None)
+            ]
+            
+            for pattern, date_format in date_patterns:
+                match = re.search(pattern, date_text, re.IGNORECASE)
+                if match:
+                    try:
+                        if date_format:
+                            # Формат DD.MM.YYYY или YYYY-MM-DD
+                            item_date = datetime.strptime(match.group(), date_format).date()
+                        else:
+                            # Формат "01 января 2024"
+                            months_ru = {
+                                'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
+                                'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
+                                'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
+                            }
+                            parts = match.group().split()
+                            if len(parts) >= 3:
+                                day = int(parts[0])
+                                month = months_ru.get(parts[1].lower(), 1)
+                                year = int(parts[2])
+                                item_date = date(year, month, day)
+                        break
+                    except Exception as e:
+                        self.logger.debug(f"Ошибка парсинга даты '{match.group()}': {str(e)}")
+                        continue
+        
+        # Если дата не найдена, пытаемся извлечь из URL
+        if not item_date and url:
+            url_date_match = re.search(r'/(\d{4})/(\d{2})/(\d{2})/', url)
+            if url_date_match:
+                try:
+                    year = int(url_date_match.group(1))
+                    month = int(url_date_match.group(2))
+                    day = int(url_date_match.group(3))
+                    item_date = date(year, month, day)
+                except:
+                    pass
+        
+        # Валидация даты
+        if item_date:
+            return self.validate_date(item_date, allow_future=allow_future)
+        
+        return None
+    
+    def validate_date(self, item_date, allow_future=False):
+        """Валидация даты
+        
+        Args:
+            item_date: date object для валидации
+            allow_future: Разрешить даты в будущем
+        
+        Returns:
+            date object (исправленный если нужно) или None если дата невалидна
+        """
+        if not item_date:
+            return None
+        
+        today = date.today()
+        
+        # Проверяем, что дата не в будущем
+        if item_date > today:
+            if allow_future:
+                return item_date
+            else:
+                self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
+                return today
+        
+        # Проверяем, что дата не слишком старая (не раньше 2020 года)
+        if item_date < date(2020, 1, 1):
+            self.logger.warning(f"Дата слишком старая: {item_date}, возвращаем None")
+            return None
+        
+        return item_date
+    
+    def extract_date_from_html(self, soup, item_elem=None):
+        """Извлечение даты из HTML элемента
+        
+        Args:
+            soup: BeautifulSoup объект
+            item_elem: Элемент HTML для поиска даты (опционально)
+        
+        Returns:
+            Строка с датой или пустая строка
+        """
+        date_text = ""
+        
+        # 1. Ищем в атрибуте datetime
+        time_elem = soup.find('time', datetime=True) if not item_elem else item_elem.find('time', datetime=True)
+        if time_elem:
+            date_text = time_elem.get('datetime', '')
+        
+        # 2. Ищем в элементах с классом date
+        if not date_text:
+            date_elem = None
+            if item_elem:
+                date_elem = (item_elem.find('time') or 
+                           item_elem.find('div', class_=re.compile(r'date|time|published', re.I)) or 
+                           item_elem.find('span', class_=re.compile(r'date|time|published', re.I)) or
+                           item_elem.find('p', class_=re.compile(r'date|time|published', re.I)))
+            else:
+                date_elem = (soup.find('time') or 
+                           soup.find('div', class_=re.compile(r'date|time|published', re.I)) or 
+                           soup.find('span', class_=re.compile(r'date|time|published', re.I)) or
+                           soup.find('p', class_=re.compile(r'date|time|published', re.I)))
+            
+            if date_elem:
+                date_text = date_elem.get_text(strip=True)
+                # Если не нашли текст, пробуем атрибут datetime
+                if not date_text and date_elem.has_attr('datetime'):
+                    date_text = date_elem.get('datetime', '')
+        
+        # 3. Ищем дату в заголовке страницы (meta теги)
+        if not date_text:
+            meta_date = soup.find('meta', property='article:published_time') or \
+                       soup.find('meta', attrs={'name': re.compile(r'date|published', re.I)})
+            if meta_date:
+                date_text = meta_date.get('content', '')
+        
+        # 4. Ищем дату в тексте страницы (в начале статьи)
+        if not date_text:
+            body_text = soup.get_text()
+            # Ищем дату в формате DD.MM.YYYY или YYYY-MM-DD в первых 2000 символах
+            date_patterns = [
+                r'\d{2}\.\d{2}\.\d{4}',
+                r'\d{4}-\d{2}-\d{2}',
+                r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}'
+            ]
+            
+            preview_text = body_text[:2000]  # Первые 2000 символов
+            for pattern in date_patterns:
+                match = re.search(pattern, preview_text, re.IGNORECASE)
+                if match:
+                    date_text = match.group()
+                    # Проверяем контекст вокруг даты
+                    start_pos = max(0, match.start() - 20)
+                    end_pos = min(len(preview_text), match.end() + 20)
+                    context = preview_text[start_pos:end_pos].lower()
+                    # Если рядом есть слова "дата", "опубликовано", "создано" и т.д., это точно дата
+                    if any(word in context for word in ['дата', 'опубликовано', 'создано', 'дата:', 'от']):
+                        break
+                    # Или если это формат DD.MM.YYYY и год между 2020 и 2025
+                    if re.match(r'\d{2}\.\d{2}\.20[2-4]\d', match.group()):
+                        break
+                    # Или если это формат YYYY-MM-DD
+                    if re.match(r'20[2-4]\d-\d{2}-\d{2}', match.group()):
+                        break
+        
+        return date_text
+    
+    def extract_text_content(self, soup, item_elem=None):
+        """Извлечение текстового содержимого из HTML
+        
+        Args:
+            soup: BeautifulSoup объект
+            item_elem: Элемент HTML для поиска контента (опционально)
+        
+        Returns:
+            Кортеж (title, content)
+        """
+        title = ""
+        content = ""
+        
+        # Извлекаем заголовок
+        if item_elem:
+            title_elem = (item_elem.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=['title', 'news-title', 'article-title']) or
+                         item_elem.find(['h1', 'h2', 'h3', 'h4']))
+        else:
+            title_elem = soup.find('h1') or soup.find('h2', class_='title') or soup.find('div', class_='title')
+        
+        if title_elem:
+            title = title_elem.get_text(strip=True)
+        
+        # Извлекаем содержимое
+        content_selectors = [
+            'div.content',
+            'div.article-content',
+            'div.text',
+            'div.news-content',
+            'article',
+            'div.main-content',
+            'div[class*="content"]',
+            'div[class*="text"]'
+        ]
+        
+        if item_elem:
+            for selector in content_selectors:
+                content_elem = item_elem.select_one(selector)
+                if content_elem:
+                    content = content_elem.get_text('\n', strip=True)
+                    if len(content) > 200:
+                        break
+        else:
+            for selector in content_selectors:
+                content_elem = soup.select_one(selector)
+                if content_elem:
+                    # Удаляем скрипты и стили
+                    for script in content_elem(['script', 'style', 'nav', 'footer', 'header']):
+                        script.decompose()
+                    content = content_elem.get_text('\n', strip=True)
+                    if len(content) > 200:
+                        break
+        
+        # Если не нашли, берем весь body
+        if not content or len(content) < 200:
+            body = soup.find('body')
+            if body:
+                # Удаляем ненужные элементы
+                for elem in body(['script', 'style', 'nav', 'footer', 'header', 'aside']):
+                    elem.decompose()
+                content = body.get_text('\n', strip=True)
+        
+        return title, content
+    
+    def has_tick_keywords(self, text, additional_keywords=None):
+        """Проверка наличия ключевых слов о клещах в тексте
+        
+        Args:
+            text: Текст для проверки
+            additional_keywords: Дополнительные ключевые слова (опционально)
+        
+        Returns:
+            True если найдены ключевые слова, False иначе
+        """
+        keywords = ['клещ', 'укус', 'энцефалит', 'присасыван']
+        if additional_keywords:
+            keywords.extend(additional_keywords)
+        
+        text_lower = text.lower()
+        return any(word in text_lower for word in keywords)
 
     def extract_case_number(self, text):
         """Извлекает количество случаев из текста"""
@@ -676,57 +770,23 @@ class TickParser:
                         title_elem = item.find(['h1', 'h2', 'h3', 'h4'])
                     if not title_elem:
                         continue
+                    # Извлекаем заголовок и содержимое
+                    title_elem = item.find(['h1', 'h2', 'h3', 'h4', 'a'], class_=['title', 'news-title', 'article-title'])
+                    if not title_elem:
+                        title_elem = item.find(['h1', 'h2', 'h3', 'h4'])
+                    if not title_elem:
+                        continue
                     title = title_elem.text.strip() if title_elem else ""
                     
-                    date_elem = item.find(['time', 'span', 'div'], class_=['date', 'time', 'news-date'])
-                    date_text = date_elem.text.strip() if date_elem else ""
+                    # Извлекаем дату
+                    date_text = self.extract_date_from_html(soup, item_elem=item)
                     
-                    # Если не нашли в элементе, пробуем атрибут datetime
-                    if not date_text and date_elem and date_elem.has_attr('datetime'):
-                        date_text = date_elem.get('datetime', '')
-                    
+                    # Извлекаем содержимое
                     content_elem = item.find(['div', 'p'], class_=['content', 'text', 'description', 'excerpt'])
                     content = content_elem.text.strip() if content_elem else ""
                     
-                    # Парсинг даты с улучшенной логикой
-                    item_date = None
-                    
-                    # Пробуем dateutil
-                    if date_text:
-                        try:
-                            parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
-                            if parsed_date:
-                                item_date = parsed_date.date()
-                        except:
-                            pass
-                    
-                    # Если dateutil не сработал, пробуем регулярные выражения
-                    if not item_date and date_text:
-                        date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', date_text)
-                        if date_match:
-                            try:
-                                item_date = datetime.strptime(date_match.group(), '%d.%m.%Y').date()
-                            except:
-                                pass
-                        
-                        if not item_date:
-                            date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
-                            if date_match:
-                                try:
-                                    item_date = datetime.strptime(date_match.group(), '%Y-%m-%d').date()
-                                except:
-                                    pass
-                    
-                    # Валидация даты
-                    if item_date:
-                        today = date.today()
-                        if item_date > today:
-                            self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
-                            item_date = today
-                        elif item_date < date(2020, 1, 1):
-                            self.logger.warning(f"Дата слишком старая: {item_date}, пропускаем запись")
-                            item_date = None
-                            continue  # Пропускаем запись
+                    # Парсим дату
+                    item_date = self.parse_date_from_text(date_text)
                     
                     # Если дата не найдена, пропускаем запись
                     if not item_date:
@@ -734,7 +794,7 @@ class TickParser:
                         continue
                     
                     cases = self.extract_case_number(title + " " + content)
-                    if not cases and any(word in (title + " " + content).lower() for word in ['клещ', 'укус', 'энцефалит', 'присасыван', 'боррелиоз']):
+                    if not cases and self.has_tick_keywords(title + " " + content, ['боррелиоз']):
                         cases = 0
                     
                     link_elem = item.find('a', href=True)
@@ -806,63 +866,24 @@ class TickParser:
                         continue
                     title = title_elem.text.strip() if title_elem else ""
                     
-                    date_elem = item.find(['time', 'span'], class_=['date', 'time'])
-                    date_text = date_elem.text.strip() if date_elem else ""
+                    # Извлекаем дату
+                    date_text = self.extract_date_from_html(soup, item_elem=item)
                     
-                    # Если не нашли в элементе, пробуем атрибут datetime
-                    if not date_text and date_elem and date_elem.has_attr('datetime'):
-                        date_text = date_elem.get('datetime', '')
-                    
+                    # Извлекаем содержимое
                     content_elem = item.find(['div', 'p'], class_=['content', 'text', 'description'])
                     content = content_elem.text.strip() if content_elem else ""
                     
-                    # Парсинг даты с улучшенной логикой
-                    item_date = None
-                    
-                    # Пробуем dateutil
-                    if date_text:
-                        try:
-                            parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
-                            if parsed_date:
-                                item_date = parsed_date.date()
-                        except:
-                            pass
-                    
-                    # Если dateutil не сработал, пробуем регулярные выражения
-                    if not item_date and date_text:
-                        date_match = re.search(r'\d{2}\.\d{2}\.\d{4}', date_text)
-                        if date_match:
-                            try:
-                                item_date = datetime.strptime(date_match.group(), '%d.%m.%Y').date()
-                            except:
-                                pass
-                        
-                        if not item_date:
-                            date_match = re.search(r'\d{4}-\d{2}-\d{2}', date_text)
-                            if date_match:
-                                try:
-                                    item_date = datetime.strptime(date_match.group(), '%Y-%m-%d').date()
-                                except:
-                                    pass
-                    
-                    # Валидация даты
-                    if item_date:
-                        today = date.today()
-                        if item_date > today:
-                            self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
-                            item_date = today
-                        elif item_date < date(2020, 1, 1):
-                            self.logger.warning(f"Дата слишком старая: {item_date}, пропускаем запись")
-                            item_date = None
-                            continue  # Пропускаем запись
+                    # Парсим дату
+                    item_date = self.parse_date_from_text(date_text)
                     
                     # Если дата не найдена, пропускаем запись
                     if not item_date:
                         self.logger.warning(f"Не удалось определить дату для новости Тюмени, пропускаем")
                         continue
                     
-                    text = (title + " " + content).lower()
-                    if not any(word in text for word in ['клещ', 'укус', 'энцефалит', 'присасыван', 'боррелиоз']):
+                    # Проверяем наличие ключевых слов
+                    text = title + " " + content
+                    if not self.has_tick_keywords(text, ['боррелиоз']):
                         continue
                     
                     cases = self.extract_case_number(title + " " + content)
