@@ -19,24 +19,35 @@ import pandas as pd
 import openpyxl
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
+import time
+from logger_config import setup_logger
 
 class TickActivityMonitor:
     def __init__(self, root):
+        # Инициализация логирования (до загрузки конфига)
+        self.logger = setup_logger()
+        self.logger.info("Инициализация приложения")
+        
+        # Загрузка конфигурации
+        self.config = self._load_config()
+        
         self.root = root
-        self.root.title("Монитор активности клещей - Тюмень")
-        self.root.geometry("1200x800")
+        self.root.title(self.config.get('app', {}).get('title', 'Монитор активности клещей - Тюмень'))
+        self.root.geometry(self.config.get('app', {}).get('geometry', '1200x800'))
         
         # Инициализация звука
         pygame.mixer.init()
-        self.sound_enabled = True
+        sound_config = self.config.get('ui', {}).get('sounds', {})
+        self.sound_enabled = sound_config.get('enabled', True)
         self.load_sounds()
         
-        # Цветовая схема
-        self.bg_color = "#0a0a1a"
-        self.text_color = "#00ff99"
-        self.highlight_color = "#ff66ff"
-        self.button_color = "#1a3a3a"
-        self.button_active_color = "#2a5a5a"
+        # Цветовая схема из конфига
+        colors = self.config.get('ui', {}).get('colors', {})
+        self.bg_color = colors.get('bg', '#0a0a1a')
+        self.text_color = colors.get('text', '#00ff99')
+        self.highlight_color = colors.get('highlight', '#ff66ff')
+        self.button_color = colors.get('button', '#1a3a3a')
+        self.button_active_color = colors.get('button_active', '#2a5a5a')
         
         # Настройка стилей
         self.setup_styles()
@@ -50,9 +61,10 @@ class TickActivityMonitor:
         self.create_neon_border()
         self.animate_neon_border()
         
-        # Данные
-        self.data_file = "tick_data.json"
-        self.excel_file = "tick_stats.xlsx"
+        # Данные из конфига
+        app_config = self.config.get('app', {})
+        self.data_file = app_config.get('data_file', 'tick_data.json')
+        self.excel_file = app_config.get('excel_file', 'tick_stats.xlsx')
         self.default_data = {
             "current_week": {"cases": 0, "risk_level": "Нет данных", "date": ""},
             "previous_week": {"cases": 0, "risk_level": "Нет данных", "date": ""},
@@ -108,7 +120,7 @@ class TickActivityMonitor:
             wb.save(self.excel_file)
             wb.close()
         except Exception as e:
-            print(f"Ошибка при форматировании Excel: {str(e)}")
+            self.logger.error(f"Ошибка при форматировании Excel: {str(e)}")
 
     def save_to_excel(self, data):
         """Сохранение данных в Excel файл"""
@@ -144,9 +156,10 @@ class TickActivityMonitor:
             # Применяем форматирование
             self.format_excel_file()
             
+            self.logger.info(f"Данные сохранены в Excel: {len(new_rows)} новых записей")
             return True
         except Exception as e:
-            print(f"Ошибка при сохранении в Excel: {str(e)}")
+            self.logger.error(f"Ошибка при сохранении в Excel: {str(e)}")
             return False
 
     def load_from_excel(self):
@@ -172,11 +185,27 @@ class TickActivityMonitor:
                     'url': row['Ссылка']
                 })
             
+            self.logger.info(f"Загружено {len(sources)} записей из Excel")
             return sources
         except Exception as e:
-            print(f"Ошибка при загрузке из Excel: {str(e)}")
+            self.logger.error(f"Ошибка при загрузке из Excel: {str(e)}")
             return []
 
+    def _load_config(self):
+        """Загрузка конфигурации из файла"""
+        try:
+            if os.path.exists('config.json'):
+                with open('config.json', 'r', encoding='utf-8') as f:
+                    config = json.load(f)
+                    self.logger.info("Конфигурация загружена из config.json")
+                    return config
+            else:
+                self.logger.warning("Файл config.json не найден, используются значения по умолчанию")
+                return {}
+        except Exception as e:
+            self.logger.error(f"Ошибка загрузки конфигурации: {str(e)}")
+            return {}
+    
     def load_sounds(self):
         """Загрузка звуковых эффектов"""
         try:
@@ -184,19 +213,23 @@ class TickActivityMonitor:
             self.button_sound = pygame.mixer.Sound("button.wav") if os.path.exists("button.wav") else None
             self.update_sound = pygame.mixer.Sound("update.wav") if os.path.exists("update.wav") else None
             self.export_sound = pygame.mixer.Sound("export.wav") if os.path.exists("export.wav") else None
-        except:
+            self.logger.info("Звуковые эффекты загружены")
+        except Exception as e:
+            self.logger.error(f"Ошибка загрузки звуков: {str(e)}")
             self.sound_enabled = False
 
     def play_background_sound(self):
         """Воспроизведение фонового звука"""
         if self.sound_enabled and self.background_sound:
-            self.background_sound.set_volume(0.3)
+            volume = self.config.get('ui', {}).get('sounds', {}).get('background_volume', 0.3)
+            self.background_sound.set_volume(volume)
             self.background_sound.play(loops=-1)
 
     def play_sound(self, sound):
         """Воспроизведение звукового эффекта"""
         if self.sound_enabled and sound:
-            sound.set_volume(0.5)
+            volume = self.config.get('ui', {}).get('sounds', {}).get('effect_volume', 0.5)
+            sound.set_volume(volume)
             sound.play()
 
     def create_neon_border(self):
@@ -567,7 +600,7 @@ class TickActivityMonitor:
         self.ax.clear()
         
         # Гистограмма с настройками
-        bars = self.ax.bar(week_label, cases, color=colors, width=0.7, edgecolor='white', linewidth=1)
+        bars = self.ax.bar(weeks, cases, color=colors, width=0.7, edgecolor='white', linewidth=1)
         
         # Настройки осей
         self.ax.set_ylabel('Количество обращений', color=self.text_color, fontsize=10)
@@ -643,17 +676,21 @@ class TickActivityMonitor:
             current_week_data = self.find_week_data(all_data, 0)
             previous_week_data = self.find_week_data(all_data, 1)
             
+            max_sources = self.config.get('graph', {}).get('filtered_max_items', 100)
             return {
                 'current_week': current_week_data,
                 'previous_week': previous_week_data,
-                'sources': all_data[:100]  # 100 последних записей
+                'sources': all_data[:max_sources]
             }
         return None
 
     def parse_telegram(self):
         """Парсинг данных из Telegram-канала"""
         try:
-            url = "https://t.me/s/tu_ymen72"
+            telegram_config = self.config.get('parsing', {}).get('sources', {}).get('telegram', {})
+            url = telegram_config.get('url', 'https://t.me/s/tu_ymen72')
+            max_items = telegram_config.get('max_items', 50)
+            
             ua = UserAgent()
             headers = {
                 'User-Agent': ua.random,
@@ -661,8 +698,11 @@ class TickActivityMonitor:
                 'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
             }
             
-            response = requests.get(url, headers=headers, timeout=15)
-            response.raise_for_status()
+            self.logger.info(f"Парсинг Telegram: {url}")
+            response = self.make_request_with_retry(url, headers)
+            
+            if not response:
+                return None
             
             soup = BeautifulSoup(response.text, 'html.parser')
             results = []
@@ -670,7 +710,7 @@ class TickActivityMonitor:
             # Ищем сообщения, содержащие информацию о клещах
             messages = soup.find_all('div', class_='tgme_widget_message')
             
-            for message in messages[:50]:  # Ограничиваемся 50 последними сообщениями
+            for message in messages[:max_items]:
                 try:
                     # Пропускаем сообщения без текста
                     if not message.find('div', class_='tgme_widget_message_text'):
@@ -704,13 +744,14 @@ class TickActivityMonitor:
                         'source': 'Telegram (Тюмень 72)'
                     })
                 except Exception as e:
-                    print(f"Ошибка обработки сообщения Telegram: {str(e)}")
+                    self.logger.debug(f"Ошибка обработки сообщения Telegram: {str(e)}")
                     continue
             
+            self.logger.info(f"Получено {len(results)} записей из Telegram")
             return results
             
         except Exception as e:
-            print(f"Ошибка при парсинге Telegram: {str(e)}")
+            self.logger.error(f"Ошибка при парсинге Telegram: {str(e)}")
             return None
 
     def find_week_data(self, data, weeks_ago):
@@ -735,8 +776,29 @@ class TickActivityMonitor:
             'risk_level': self.calculate_risk_level(data[-1]['cases'])
         }
 
+    def make_request_with_retry(self, url, headers, max_retries=3, delay=2):
+        """Выполнение HTTP запроса с повторами при ошибках"""
+        parsing_config = self.config.get('parsing', {})
+        max_retries = parsing_config.get('retry_count', max_retries)
+        delay = parsing_config.get('retry_delay', delay)
+        timeout = parsing_config.get('timeout', 15)
+        
+        for attempt in range(max_retries):
+            try:
+                response = requests.get(url, headers=headers, timeout=timeout)
+                response.raise_for_status()
+                return response
+            except requests.exceptions.RequestException as e:
+                self.logger.warning(f"Попытка {attempt + 1}/{max_retries} не удалась для {url}: {str(e)}")
+                if attempt < max_retries - 1:
+                    time.sleep(delay)
+                else:
+                    self.logger.error(f"Все попытки исчерпаны для {url}")
+                    raise
+        return None
+    
     def parse_web_data(self):
-        """Парсинг данных с веб-сайта (100 записей)"""
+        """Парсинг данных с веб-сайта"""
         try:
             ua = UserAgent()
             headers = {
@@ -745,16 +807,21 @@ class TickActivityMonitor:
                 'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
             }
             
-            base_url = "https://72.rospotrebnadzor.ru"
-            search_url = f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8"
+            web_config = self.config.get('parsing', {}).get('sources', {}).get('web', {})
+            base_url = web_config.get('base_url', 'https://72.rospotrebnadzor.ru')
+            search_url = web_config.get('search_url', f"{base_url}/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8")
+            max_items = web_config.get('max_items', 100)
             
-            response = requests.get(search_url, headers=headers, timeout=15)
-            response.raise_for_status()
+            self.logger.info(f"Парсинг веб-сайта: {search_url}")
+            response = self.make_request_with_retry(search_url, headers)
+            
+            if not response:
+                return None
             
             soup = BeautifulSoup(response.text, 'html.parser')
             results = []
             
-            news_items = soup.find_all('div', class_='search-item')[:100]
+            news_items = soup.find_all('div', class_='search-item')[:max_items]
             
             for item in news_items:
                 try:
@@ -779,23 +846,28 @@ class TickActivityMonitor:
                             'source': 'Роспотребнадзор (веб)'
                         })
                 except Exception as e:
-                    print(f"Ошибка обработки новости: {str(e)}")
+                    self.logger.debug(f"Ошибка обработки новости: {str(e)}")
                     continue
             
+            self.logger.info(f"Получено {len(results)} записей с веб-сайта")
             return results
             
         except Exception as e:
-            print(f"Ошибка при парсинге веб-сайта: {str(e)}")
+            self.logger.error(f"Ошибка при парсинге веб-сайта: {str(e)}")
             return None
 
     def parse_rss_feed(self):
-        """Парсинг RSS-ленты (100 записей)"""
+        """Парсинг RSS-ленты"""
         try:
-            rss_url = "https://72.rospotrebnadzor.ru/rss/"
+            web_config = self.config.get('parsing', {}).get('sources', {}).get('web', {})
+            rss_url = web_config.get('rss_url', 'https://72.rospotrebnadzor.ru/rss/')
+            max_items = web_config.get('max_items', 100)
+            
+            self.logger.info(f"Парсинг RSS-ленты: {rss_url}")
             feed = feedparser.parse(rss_url)
             results = []
             
-            for entry in feed.entries[:100]:
+            for entry in feed.entries[:max_items]:
                 try:
                     date = datetime(*entry.published_parsed[:6]).date()
                     
@@ -813,13 +885,14 @@ class TickActivityMonitor:
                                 'source': 'Роспотребнадзор (RSS)'
                             })
                 except Exception as e:
-                    print(f"Ошибка обработки RSS-записи: {str(e)}")
+                    self.logger.debug(f"Ошибка обработки RSS-записи: {str(e)}")
                     continue
             
+            self.logger.info(f"Получено {len(results)} записей из RSS")
             return results
             
         except Exception as e:
-            print(f"Ошибка при парсинге RSS: {str(e)}")
+            self.logger.error(f"Ошибка при парсинге RSS: {str(e)}")
             return None
 
     def extract_case_number(self, text):
@@ -844,17 +917,19 @@ class TickActivityMonitor:
     def update_data(self):
         """Основной метод обновления данных"""
         try:
+            self.logger.info("Начало обновления данных")
             web_data = self.parse_rospotrebnadzor()
             
             if web_data:
                 self.process_new_data(web_data)
+                self.logger.info("Данные успешно обновлены")
                 messagebox.showinfo("Успех", "Данные успешно обновлены!")
                 self.play_sound(self.update_sound)
             else:
                 raise ValueError("Не удалось получить данные с сайтов")
                 
         except Exception as e:
-            print(f"Ошибка при обновлении: {str(e)}")
+            self.logger.error(f"Ошибка при обновлении: {str(e)}", exc_info=True)
             self.load_backup_data()
             messagebox.showwarning("Внимание", 
                 f"Не удалось загрузить новые данные: {str(e)}\nИспользуются сохранённые данные.")
@@ -940,8 +1015,9 @@ class TickActivityMonitor:
             weekly_data.columns = ['year_week', 'cases', 'start_date', 'end_date']
             weekly_data = weekly_data.sort_values('start_date')
             
-            # Берем последние 8 недель для графика
-            weekly_data = weekly_data.tail(8)
+            # Берем последние N недель для графика из конфига
+            weeks_to_show = self.config.get('graph', {}).get('weeks_to_show', 8)
+            weekly_data = weekly_data.tail(weeks_to_show)
             
             # Подготовка данных для графика
             weeks = []
@@ -1000,7 +1076,7 @@ class TickActivityMonitor:
             self.canvas_graph.draw()
             
         except Exception as e:
-            print(f"Ошибка при обновлении графика: {str(e)}")
+            self.logger.error(f"Ошибка при обновлении графика: {str(e)}", exc_info=True)
 
     def update_sources(self):
         """Обновление списка источников"""
@@ -1022,26 +1098,35 @@ class TickActivityMonitor:
         self.sources_text.config(state=tk.DISABLED)
 
     def calculate_risk_level(self, cases):
-        """Определение уровня риска"""
+        """Определение уровня риска на основе конфигурации"""
         if not isinstance(cases, int) or cases == 0:
             return "Нет данных"
-            
-        if cases < 50:
+        
+        risk_config = self.config.get('risk_levels', {})
+        thresholds = {
+            'low': risk_config.get('low', {}).get('threshold', 50),
+            'moderate': risk_config.get('moderate', {}).get('threshold', 100),
+            'high': risk_config.get('high', {}).get('threshold', 150),
+            'very_high': risk_config.get('very_high', {}).get('threshold', 999999)
+        }
+        
+        if cases < thresholds['low']:
             return "Низкий"
-        elif 50 <= cases < 100:
+        elif cases < thresholds['moderate']:
             return "Умеренный"
-        elif 100 <= cases < 150:
+        elif cases < thresholds['high']:
             return "Высокий"
         else:
             return "Очень высокий"
 
     def get_risk_color(self, risk_level):
-        """Цвет для уровня риска"""
+        """Цвет для уровня риска из конфигурации"""
+        risk_config = self.config.get('risk_levels', {})
         colors = {
-            "Низкий": "#00ff00",
-            "Умеренный": "#ffff00",
-            "Высокий": "#ff9900",
-            "Очень высокий": "#ff0000",
+            "Низкий": risk_config.get('low', {}).get('color', '#00ff00'),
+            "Умеренный": risk_config.get('moderate', {}).get('color', '#ffff00'),
+            "Высокий": risk_config.get('high', {}).get('color', '#ff9900'),
+            "Очень высокий": risk_config.get('very_high', {}).get('color', '#ff0000'),
             "Нет данных": "#aaaaaa"
         }
         return colors.get(risk_level, "#aaaaaa")
@@ -1056,8 +1141,9 @@ class TickActivityMonitor:
             
             with open(self.data_file, 'w', encoding='utf-8') as f:
                 json.dump(data_to_save, f, ensure_ascii=False, indent=2)
+            self.logger.debug("Данные сохранены в JSON")
         except Exception as e:
-            print(f"Ошибка при сохранении JSON: {str(e)}")
+            self.logger.error(f"Ошибка при сохранении JSON: {str(e)}")
 
     def load_data(self):
         """Загрузка данных из файла JSON и Excel"""
@@ -1108,9 +1194,10 @@ class TickActivityMonitor:
                     }
             
             self.update_ui()
+            self.logger.info("Данные загружены успешно")
             
         except (FileNotFoundError, json.JSONDecodeError) as e:
-            print(f"Ошибка загрузки: {str(e)}")
+            self.logger.warning(f"Ошибка загрузки: {str(e)}, используются значения по умолчанию")
             self.data = self.default_data.copy()
 
     def load_backup_data(self):
@@ -1121,10 +1208,13 @@ class TickActivityMonitor:
         self.root.mainloop()
 
 if __name__ == "__main__":
+    logger = setup_logger()
     try:
+        logger.info("Запуск приложения")
         root = tk.Tk()
         app = TickActivityMonitor(root)
         app.run()
     except Exception as e:
-        print(f"Произошла ошибка: {str(e)}")
+        logger.critical(f"Критическая ошибка: {str(e)}", exc_info=True)
+        print(f"Произошла критическая ошибка: {str(e)}")
         sys.exit(1)
