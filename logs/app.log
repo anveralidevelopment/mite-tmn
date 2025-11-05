@@ -1,0 +1,532 @@
+2025-11-05 22:55:31 - mite_tmn - INFO - Запуск приложения
+2025-11-05 22:55:32 - mite_tmn - INFO - Инициализация приложения
+2025-11-05 22:55:32 - mite_tmn - INFO - Инициализация приложения
+2025-11-05 22:55:32 - mite_tmn - INFO - Конфигурация загружена из config.json
+2025-11-05 22:55:32 - mite_tmn - INFO - Конфигурация загружена из config.json
+2025-11-05 22:55:32 - mite_tmn - INFO - Звуковые эффекты загружены
+2025-11-05 22:55:32 - mite_tmn - INFO - Звуковые эффекты загружены
+2025-11-05 22:55:33 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:33 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:33 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:33 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:33 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 22:55:33 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 22:55:49 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 22:55:49 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 22:55:49 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 22:55:49 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 22:55:50 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 22:55:50 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 22:55:50 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 22:55:50 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 22:55:50 - mite_tmn - INFO - Получено 0 записей из RSS
+2025-11-05 22:55:50 - mite_tmn - INFO - Получено 0 записей из RSS
+2025-11-05 22:55:50 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 22:55:50 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 22:55:51 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 22:55:51 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 22:55:51 - mite_tmn - ERROR - Ошибка при обновлении: Не удалось получить данные с сайтов
+Traceback (most recent call last):
+  File "E:\apps\mite-tmn\mite.py", line 929, in update_data
+    raise ValueError("Не удалось получить данные с сайтов")
+ValueError: Не удалось получить данные с сайтов
+2025-11-05 22:55:51 - mite_tmn - ERROR - Ошибка при обновлении: Не удалось получить данные с сайтов
+Traceback (most recent call last):
+  File "E:\apps\mite-tmn\mite.py", line 929, in update_data
+    raise ValueError("Не удалось получить данные с сайтов")
+ValueError: Не удалось получить данные с сайтов
+2025-11-05 22:55:51 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:51 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:51 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:51 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 22:55:51 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 22:55:51 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 23:01:38 - mite_tmn - INFO - Запуск приложения
+2025-11-05 23:01:38 - mite_tmn - INFO - Инициализация приложения
+2025-11-05 23:01:38 - mite_tmn - INFO - Инициализация приложения
+2025-11-05 23:01:38 - mite_tmn - INFO - Конфигурация загружена из config.json
+2025-11-05 23:01:38 - mite_tmn - INFO - Конфигурация загружена из config.json
+2025-11-05 23:01:38 - mite_tmn - INFO - Звуковые эффекты загружены
+2025-11-05 23:01:38 - mite_tmn - INFO - Звуковые эффекты загружены
+2025-11-05 23:01:39 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 23:01:39 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 23:01:40 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 23:01:40 - mite_tmn - INFO - Загружено 6 записей из Excel
+2025-11-05 23:01:40 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 23:01:40 - mite_tmn - INFO - Данные загружены успешно
+2025-11-05 23:01:43 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 23:01:43 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 23:01:43 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 23:01:43 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 23:01:44 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 23:01:44 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 23:01:44 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 23:01:44 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 23:01:44 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 23:01:44 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 23:01:44 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 23:01:44 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 23:01:45 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 23:01:45 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 23:01:45 - mite_tmn - INFO - Всего найдено записей: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 23:01:45 - mite_tmn - INFO - Всего найдено записей: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 23:01:45 - mite_tmn - INFO - Данные сохранены в Excel: 1 новых записей
+2025-11-05 23:01:45 - mite_tmn - INFO - Данные сохранены в Excel: 1 новых записей
+2025-11-05 23:01:45 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:01:45 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:01:45 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:01:45 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:01:45 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 23:01:45 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 23:02:20 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 23:02:20 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 23:02:20 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 23:02:20 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 23:02:21 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 23:02:21 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 23:02:21 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 23:02:21 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 23:02:21 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 23:02:21 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 23:02:21 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 23:02:21 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 23:02:22 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 23:02:22 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 23:02:22 - mite_tmn - INFO - Всего найдено записей: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 23:02:22 - mite_tmn - INFO - Всего найдено записей: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 23:02:22 - mite_tmn - INFO - Данные сохранены в Excel: 1 новых записей
+2025-11-05 23:02:22 - mite_tmn - INFO - Данные сохранены в Excel: 1 новых записей
+2025-11-05 23:02:22 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:02:22 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:02:22 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:02:22 - mite_tmn - INFO - Загружено 7 записей из Excel
+2025-11-05 23:02:22 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 23:02:22 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 18:33:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:33:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:33:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:33:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:33:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:33:19 - mite_tmn - ERROR - Ошибка создания таблиц: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-11-05 18:33:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:33:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:33:19 - mite_tmn - ERROR - Ошибка создания таблиц: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-11-05 18:33:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:33:19 - mite_tmn - ERROR - Ошибка инициализации БД при старте: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/src/app.py", line 21, in <module>
+    db.create_tables()
+  File "/app/src/database.py", line 52, in create_tables
+    Base.metadata.create_all(self.engine)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/schema.py", line 5928, in create_all
+    bind._run_ddl_visitor(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 3252, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2459, in _run_ddl_visitor
+    ).traverse_single(element)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 984, in visit_metadata
+    self.traverse_single(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 1022, in visit_table
+    )._invoke_with(self.connection)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 321, in _invoke_with
+    return bind.execute(self)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 187, in _execute_on_connection
+    return connection._execute_ddl(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1530, in _execute_ddl
+    ret = self._execute_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-11-05 18:33:19 - mite_tmn - ERROR - Ошибка инициализации БД при старте: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UniqueViolation: duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/src/app.py", line 21, in <module>
+    db.create_tables()
+  File "/app/src/database.py", line 52, in create_tables
+    Base.metadata.create_all(self.engine)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/schema.py", line 5928, in create_all
+    bind._run_ddl_visitor(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 3252, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2459, in _run_ddl_visitor
+    ).traverse_single(element)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 984, in visit_metadata
+    self.traverse_single(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/visitors.py", line 661, in traverse_single
+    return meth(obj, **kw)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 1022, in visit_table
+    )._invoke_with(self.connection)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 321, in _invoke_with
+    return bind.execute(self)
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/sql/ddl.py", line 187, in _execute_on_connection
+    return connection._execute_ddl(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1530, in _execute_ddl
+    ret = self._execute_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.10/site-packages/sqlalchemy/engine/default.py", line 951, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "pg_type_typname_nsp_index"
+DETAIL:  Key (typname, typnamespace)=(tick_data, 2200) already exists.
+
+[SQL: 
+CREATE TABLE tick_data (
+	id SERIAL NOT NULL, 
+	date DATE NOT NULL, 
+	cases INTEGER NOT NULL, 
+	risk_level VARCHAR(50) NOT NULL, 
+	source VARCHAR(200) NOT NULL, 
+	title TEXT, 
+	content TEXT, 
+	url TEXT, 
+	created_at TIMESTAMP WITHOUT TIME ZONE, 
+	updated_at TIMESTAMP WITHOUT TIME ZONE, 
+	PRIMARY KEY (id)
+)
+
+]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-11-05 18:34:07 - mite_tmn - INFO - Загружено 0 записей из БД
+2025-11-05 18:34:07 - mite_tmn - INFO - Загружено 0 записей из БД
+2025-11-05 18:34:07 - mite_tmn - INFO - Загружено 0 записей из БД
+2025-11-05 18:34:07 - mite_tmn - INFO - Загружено 0 записей из БД
+2025-11-05 18:34:13 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:34:13 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:34:14 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:34:14 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:34:14 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:34:14 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:34:14 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:34:14 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:34:14 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:34:14 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:34:15 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:34:15 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:34:16 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:34:16 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:34:16 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 18:34:16 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 18:34:16 - mite_tmn - INFO - Сохранено 1 новых записей в БД
+2025-11-05 18:34:16 - mite_tmn - INFO - Сохранено 1 новых записей в БД
+2025-11-05 18:34:16 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 18:34:16 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 18:34:16 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:16 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:17 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:17 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:34 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:34:34 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:34:34 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:34:34 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:34:34 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:34:34 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:34:34 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:34:34 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:34:35 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:34:35 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:34:35 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:34:35 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:34:36 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:34:36 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:34:36 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 18:34:36 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, всего=1
+2025-11-05 18:34:36 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:34:36 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:34:36 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 18:34:36 - mite_tmn - INFO - Данные успешно обновлены
+2025-11-05 18:34:37 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:37 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:37 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:34:37 - mite_tmn - INFO - Загружено 1 записей из БД
+2025-11-05 18:39:24 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:39:24 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:39:24 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:39:24 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:39:24 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:39:24 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:39:24 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:39:24 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:39:24 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:39:24 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:39:24 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:39:24 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:39:24 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:39:24 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:39:24 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:39:24 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:39:24 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:39:24 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:39:24 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:39:24 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:39:24 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:39:25 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:39:25 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:39:26 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:39:26 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:39:26 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:39:26 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:39:26 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:26 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:26 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:26 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:27 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:27 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:27 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:27 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:29 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:29 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:29 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:29 - mite_tmn - WARNING - Попытка 2/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:31 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:31 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:31 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:31 - mite_tmn - WARNING - Попытка 3/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:39:31 - mite_tmn - INFO - Парсинг новостей Тюмени: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:31 - mite_tmn - INFO - Парсинг новостей Тюмени: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:31 - mite_tmn - INFO - Парсинг новостей Тюмени: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:31 - mite_tmn - INFO - Парсинг новостей Тюмени: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:32 - mite_tmn - WARNING - Попытка 1/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:32 - mite_tmn - WARNING - Попытка 1/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:32 - mite_tmn - WARNING - Попытка 1/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:32 - mite_tmn - WARNING - Попытка 1/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:34 - mite_tmn - WARNING - Попытка 2/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:34 - mite_tmn - WARNING - Попытка 2/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:35 - mite_tmn - WARNING - Попытка 2/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:35 - mite_tmn - WARNING - Попытка 2/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:37 - mite_tmn - WARNING - Попытка 3/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:37 - mite_tmn - WARNING - Попытка 3/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:37 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, Роспотребнадзор новости=0, Тюмень новости=0, всего=1
+2025-11-05 18:39:37 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, Роспотребнадзор новости=0, Тюмень новости=0, всего=1
+2025-11-05 18:39:37 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:39:37 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:39:37 - mite_tmn - INFO - Данные успешно обновлены. Сохранено новых записей: 0
+2025-11-05 18:39:37 - mite_tmn - INFO - Данные успешно обновлены. Сохранено новых записей: 0
+2025-11-05 18:39:37 - mite_tmn - INFO - Автоматическое обновление завершено. Следующее обновление через 20 минут
+2025-11-05 18:39:37 - mite_tmn - INFO - Автоматическое обновление завершено. Следующее обновление через 20 минут
+2025-11-05 18:39:37 - mite_tmn - WARNING - Попытка 3/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:37 - mite_tmn - WARNING - Попытка 3/3 не удалась: 410 Client Error: Gone for url: https://www.tyumen-city.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89
+2025-11-05 18:39:37 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, Роспотребнадзор новости=0, Тюмень новости=0, всего=1
+2025-11-05 18:39:37 - mite_tmn - INFO - Всего найдено: веб=0, RSS=1, Telegram=0, Роспотребнадзор новости=0, Тюмень новости=0, всего=1
+2025-11-05 18:39:37 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:39:37 - mite_tmn - INFO - Сохранено 0 новых записей в БД
+2025-11-05 18:39:37 - mite_tmn - INFO - Данные успешно обновлены. Сохранено новых записей: 0
+2025-11-05 18:39:37 - mite_tmn - INFO - Данные успешно обновлены. Сохранено новых записей: 0
+2025-11-05 18:39:37 - mite_tmn - INFO - Автоматическое обновление завершено. Следующее обновление через 20 минут
+2025-11-05 18:39:37 - mite_tmn - INFO - Автоматическое обновление завершено. Следующее обновление через 20 минут
+2025-11-05 18:41:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:41:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:41:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:41:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:41:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:41:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:41:19 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:41:19 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:41:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:41:19 - mite_tmn - INFO - Инициализация БД: db:5432/mite_tmn
+2025-11-05 18:41:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:41:19 - mite_tmn - INFO - Таблицы БД созданы успешно
+2025-11-05 18:41:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:41:19 - mite_tmn - INFO - База данных инициализирована при старте
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматический мониторинг запущен
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:41:19 - mite_tmn - INFO - Автоматическое обновление данных запущено (интервал: 20 минут)
+2025-11-05 18:41:19 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:41:19 - mite_tmn - INFO - Начало обновления данных
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг веб-сайта: https://72.rospotrebnadzor.ru/search/?q=%D0%BA%D0%BB%D0%B5%D1%89%D0%B8
+2025-11-05 18:41:19 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:41:19 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:41:19 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:41:19 - mite_tmn - INFO - Получено 0 записей с веб-сайта
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:41:19 - mite_tmn - INFO - Парсинг RSS-ленты: https://72.rospotrebnadzor.ru/rss/
+2025-11-05 18:41:20 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:41:20 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:41:20 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:41:20 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:41:20 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:41:20 - mite_tmn - INFO - Получено 1 записей из RSS
+2025-11-05 18:41:20 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:41:20 - mite_tmn - INFO - Парсинг Telegram: https://t.me/s/tu_ymen72
+2025-11-05 18:41:21 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:41:21 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:41:21 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:41:21 - mite_tmn - INFO - Получено 0 записей из Telegram
+2025-11-05 18:41:21 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - INFO - Парсинг новостей Роспотребнадзора: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/
+2025-11-05 18:41:21 - mite_tmn - WARNING - Попытка 1/3 не удалась: 404 Client Error: Not Found for url: https://72.rospotrebnadzor.ru/news/

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Монитор активности клещей - Тюмень</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">Монитор активности клещей</h1>
+                <p class="subtitle">Тюменская область</p>
+            </div>
+            <button class="btn btn-primary" id="updateBtn" onclick="updateData()">
+                <span class="btn-icon">↻</span>
+                Обновить данные
+            </button>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Текущая неделя</div>
+                <div class="stat-value" id="currentCases">-</div>
+                <div class="stat-date" id="currentDate">-</div>
+                <div class="stat-risk" id="currentRisk">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Прошлая неделя</div>
+                <div class="stat-value" id="previousCases">-</div>
+                <div class="stat-date" id="previousDate">-</div>
+                <div class="stat-risk" id="previousRisk">-</div>
+            </div>
+        </div>
+
+        <!-- Graph Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Динамика активности</h2>
+                <div class="filter-group">
+                    <input type="date" id="startDate" class="date-input">
+                    <input type="date" id="endDate" class="date-input">
+                    <button class="btn btn-secondary" onclick="applyFilter()">Применить фильтр</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sources Section -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Источники данных</h2>
+            </div>
+            <div class="card-body">
+                <div id="sourcesList" class="sources-list">
+                    <div class="loading">Загрузка данных...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Обновление данных...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
+

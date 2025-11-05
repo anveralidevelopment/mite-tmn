@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: mite_tmn_db
+    environment:
+      POSTGRES_DB: mite_tmn
+      POSTGRES_USER: mite_user
+      POSTGRES_PASSWORD: mite_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mite_user -d mite_tmn"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mite_network
+
+  app:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: mite-tmn-app:latest
+    container_name: mite-tmn-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DATABASE_URL=postgresql://mite_user:mite_password@db:5432/mite_tmn
+      - FLASK_ENV=production
+    volumes:
+      - ../config/config.json:/app/config/config.json:ro
+      - ../logs:/app/logs
+      - ../data:/app/data
+    networks:
+      - mite_network
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/api/stats', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  mite_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
