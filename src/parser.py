@@ -160,17 +160,63 @@ class TickParser:
             if title_elem:
                 title = title_elem.get_text(strip=True)
             
-            # Извлекаем дату
+            # Извлекаем дату - ищем в разных местах
             date_text = ""
-            date_elem = soup.find('time') or soup.find('div', class_='date') or soup.find('span', class_='date')
-            if date_elem:
-                date_text = date_elem.get_text(strip=True)
             
-            # Если дата в атрибуте datetime
+            # 1. Ищем в атрибуте datetime
+            time_elem = soup.find('time', datetime=True)
+            if time_elem:
+                date_text = time_elem.get('datetime', '')
+            
+            # 2. Ищем в элементах с классом date
             if not date_text:
-                time_elem = soup.find('time', datetime=True)
-                if time_elem:
-                    date_text = time_elem.get('datetime', '')
+                date_elem = (soup.find('time') or 
+                           soup.find('div', class_=re.compile(r'date|time|published', re.I)) or 
+                           soup.find('span', class_=re.compile(r'date|time|published', re.I)) or
+                           soup.find('p', class_=re.compile(r'date|time|published', re.I)))
+                if date_elem:
+                    date_text = date_elem.get_text(strip=True)
+                    # Если не нашли текст, пробуем атрибут datetime
+                    if not date_text and date_elem.has_attr('datetime'):
+                        date_text = date_elem.get('datetime', '')
+            
+            # 3. Ищем дату в заголовке страницы (meta теги)
+            if not date_text:
+                meta_date = soup.find('meta', property='article:published_time') or \
+                           soup.find('meta', attrs={'name': re.compile(r'date|published', re.I)})
+                if meta_date:
+                    date_text = meta_date.get('content', '')
+            
+            # 4. Ищем дату в тексте страницы (в начале статьи)
+            if not date_text:
+                # Ищем в первых параграфах или в начале контента
+                body_text = soup.get_text()
+                # Ищем дату в формате DD.MM.YYYY или YYYY-MM-DD в первых 2000 символах
+                date_patterns = [
+                    r'\d{2}\.\d{2}\.\d{4}',
+                    r'\d{4}-\d{2}-\d{2}',
+                    r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}'
+                ]
+                
+                preview_text = body_text[:2000]  # Первые 2000 символов
+                for pattern in date_patterns:
+                    match = re.search(pattern, preview_text, re.IGNORECASE)
+                    if match:
+                        date_text = match.group()
+                        # Проверяем, что это похоже на дату (не просто число в тексте)
+                        # Проверяем контекст вокруг даты
+                        start_pos = max(0, match.start() - 20)
+                        end_pos = min(len(preview_text), match.end() + 20)
+                        context = preview_text[start_pos:end_pos].lower()
+                        # Если рядом есть слова "дата", "опубликовано", "создано" и т.д., это точно дата
+                        if any(word in context for word in ['дата', 'опубликовано', 'создано', 'дата:', 'от']):
+                            break
+                        # Или если это формат DD.MM.YYYY и год между 2020 и 2025
+                        if re.match(r'\d{2}\.\d{2}\.20[2-4]\d', match.group()):
+                            break
+                        # Или если это формат YYYY-MM-DD
+                        if re.match(r'20[2-4]\d-\d{2}-\d{2}', match.group()):
+                            break
             
             # Извлекаем полное содержимое статьи
             content = ""
@@ -206,44 +252,90 @@ class TickParser:
                         elem.decompose()
                     content = body.get_text('\n', strip=True)
             
-            # Парсим дату
+            # Парсим дату с улучшенной логикой
             item_date = None
-            date_patterns = [
-                r'\d{2}\.\d{2}\.\d{4}',
-                r'\d{4}-\d{2}-\d{2}',
-                r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}'
-            ]
             
-            for pattern in date_patterns:
-                match = re.search(pattern, date_text, re.IGNORECASE)
-                if match:
-                    try:
-                        if 'января' in match.group().lower() or 'февраля' in match.group().lower():
-                            # Формат "01 января 2024"
-                            months_ru = {
-                                'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
-                                'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
-                                'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
-                            }
-                            parts = match.group().split()
-                            if len(parts) >= 3:
-                                day = int(parts[0])
-                                month = months_ru.get(parts[1].lower(), 1)
-                                year = int(parts[2])
-                                item_date = date(year, month, day)
-                        else:
-                            # Формат DD.MM.YYYY или YYYY-MM-DD
-                            if '.' in match.group():
-                                item_date = datetime.strptime(match.group(), '%d.%m.%Y').date()
+            # Сначала пытаемся распарсить через dateutil (более гибкий)
+            if date_text:
+                try:
+                    parsed_date = date_parser.parse(date_text, fuzzy=True, dayfirst=True)
+                    if parsed_date:
+                        item_date = parsed_date.date()
+                except:
+                    pass
+            
+            # Если dateutil не сработал, пробуем регулярные выражения
+            if not item_date and date_text:
+                date_patterns = [
+                    (r'\d{2}\.\d{2}\.\d{4}', '%d.%m.%Y'),
+                    (r'\d{4}-\d{2}-\d{2}', '%Y-%m-%d'),
+                    (r'\d{1,2}\.\d{1,2}\.\d{4}', '%d.%m.%Y'),
+                    (r'\d{1,2}\s+(января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря)\s+\d{4}', None)
+                ]
+                
+                for pattern, date_format in date_patterns:
+                    match = re.search(pattern, date_text, re.IGNORECASE)
+                    if match:
+                        try:
+                            if date_format:
+                                # Формат DD.MM.YYYY или YYYY-MM-DD
+                                item_date = datetime.strptime(match.group(), date_format).date()
                             else:
-                                item_date = datetime.strptime(match.group(), '%Y-%m-%d').date()
-                        break
-                    except:
-                        continue
+                                # Формат "01 января 2024"
+                                months_ru = {
+                                    'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4,
+                                    'мая': 5, 'июня': 6, 'июля': 7, 'августа': 8,
+                                    'сентября': 9, 'октября': 10, 'ноября': 11, 'декабря': 12
+                                }
+                                parts = match.group().split()
+                                if len(parts) >= 3:
+                                    day = int(parts[0])
+                                    month = months_ru.get(parts[1].lower(), 1)
+                                    year = int(parts[2])
+                                    item_date = date(year, month, day)
+                            
+                            # Валидация даты
+                            if item_date:
+                                today = date.today()
+                                # Проверяем, что дата не в будущем (с небольшим запасом на 1 день)
+                                if item_date > today:
+                                    self.logger.warning(f"Дата в будущем: {item_date}, используем текущую дату")
+                                    item_date = today
+                                # Проверяем, что дата не слишком старая (не раньше 2020 года)
+                                elif item_date < date(2020, 1, 1):
+                                    self.logger.warning(f"Дата слишком старая: {item_date}, пропускаем запись")
+                                    item_date = None
+                                    return None  # Пропускаем запись со слишком старой датой
+                            
+                            break
+                        except Exception as e:
+                            self.logger.debug(f"Ошибка парсинга даты '{match.group()}': {str(e)}")
+                            continue
             
-            # Если дата не найдена, используем текущую дату
+            # Если дата не найдена, пытаемся извлечь из URL
             if not item_date:
-                item_date = date.today()
+                # Ищем дату в URL (например, /2024/05/03/)
+                url_date_match = re.search(r'/(\d{4})/(\d{2})/(\d{2})/', article_url)
+                if url_date_match:
+                    try:
+                        year = int(url_date_match.group(1))
+                        month = int(url_date_match.group(2))
+                        day = int(url_date_match.group(3))
+                        item_date = date(year, month, day)
+                        # Валидация
+                        today = date.today()
+                        if item_date > today:
+                            item_date = today
+                        elif item_date < date(2020, 1, 1):
+                            item_date = None
+                            return None
+                    except:
+                        pass
+            
+            # Если дата все еще не найдена, логируем и пропускаем запись
+            if not item_date:
+                self.logger.warning(f"Не удалось определить дату для статьи {article_url}, пропускаем запись")
+                return None  # Пропускаем записи без даты вместо использования текущей даты
             
             # Извлекаем количество случаев
             cases = self.extract_case_number(title + " " + content)
