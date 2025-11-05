@@ -58,11 +58,26 @@ class DatabaseManager:
     def create_tables(self):
         """Создание таблиц в БД"""
         try:
-            Base.metadata.create_all(self.engine)
+            # Проверяем существование таблиц перед созданием
+            from sqlalchemy import inspect
+            inspector = inspect(self.engine)
+            existing_tables = inspector.get_table_names()
+            
+            if 'tick_data' in existing_tables:
+                logger.info("Таблицы БД уже существуют")
+                return
+            
+            # Создаем таблицы с проверкой существования
+            Base.metadata.create_all(self.engine, checkfirst=True)
             logger.info("Таблицы БД созданы успешно")
         except Exception as e:
-            logger.error(f"Ошибка создания таблиц: {str(e)}")
-            raise
+            # Игнорируем ошибки, если таблицы уже существуют
+            error_msg = str(e).lower()
+            if 'already exists' in error_msg or 'duplicate key' in error_msg or 'unique constraint' in error_msg:
+                logger.info("Таблицы БД уже существуют (игнорируем ошибку)")
+            else:
+                logger.error(f"Ошибка создания таблиц: {str(e)}")
+                raise
 
     def get_session(self) -> Session:
         """Получение сессии БД"""
@@ -102,48 +117,74 @@ class DatabaseManager:
 
     def save_tick_data(self, data_list):
         """Сохранение данных о клещах"""
+        if not data_list:
+            return 0
+        
         session = self.get_session()
         try:
             saved_count = 0
+            updated_count = 0
             for item in data_list:
-                # Проверяем, существует ли запись
-                existing = session.query(TickData).filter(
-                    TickData.date == item['date'],
-                    TickData.source == item.get('source', ''),
-                    TickData.title == item.get('title', '')
-                ).first()
-                
-                risk_level = item.get('risk_level') or self.calculate_risk_level(item.get('cases', 0))
-                
-                if existing:
-                    # Обновляем существующую запись
-                    existing.cases = item.get('cases', 0)
-                    existing.risk_level = risk_level
-                    existing.content = item.get('content', '')
-                    existing.url = item.get('url', '')
-                    existing.location = item.get('location')
-                    existing.updated_at = datetime.now()
-                else:
-                    # Создаем новую запись
-                    tick_data = TickData(
-                        date=item['date'],
-                        cases=item.get('cases', 0),
-                        risk_level=risk_level,
-                        source=item.get('source', 'Неизвестно'),
-                        title=item.get('title', ''),
-                        content=item.get('content', ''),
-                        url=item.get('url', ''),
-                        location=item.get('location')
-                    )
-                    session.add(tick_data)
-                    saved_count += 1
+                try:
+                    # Проверяем, существует ли запись (по URL или по комбинации date+source+title)
+                    existing = None
+                    if item.get('url'):
+                        existing = session.query(TickData).filter(
+                            TickData.url == item.get('url')
+                        ).first()
+                    
+                    if not existing:
+                        existing = session.query(TickData).filter(
+                            TickData.date == item['date'],
+                            TickData.source == item.get('source', ''),
+                            TickData.title == item.get('title', '')
+                        ).first()
+                    
+                    risk_level = item.get('risk_level') or self.calculate_risk_level(item.get('cases', 0))
+                    
+                    if existing:
+                        # Обновляем существующую запись
+                        existing.cases = item.get('cases', 0)
+                        existing.risk_level = risk_level
+                        existing.content = item.get('content', '')
+                        existing.url = item.get('url', '')
+                        existing.location = item.get('location')
+                        existing.updated_at = datetime.now()
+                        updated_count += 1
+                    else:
+                        # Создаем новую запись
+                        tick_data = TickData(
+                            date=item['date'],
+                            cases=item.get('cases', 0),
+                            risk_level=risk_level,
+                            source=item.get('source', 'Неизвестно'),
+                            title=item.get('title', ''),
+                            content=item.get('content', ''),
+                            url=item.get('url', ''),
+                            location=item.get('location')
+                        )
+                        session.add(tick_data)
+                        saved_count += 1
+                except Exception as e:
+                    # Логируем ошибку для конкретного элемента, но продолжаем обработку
+                    logger.warning(f"Ошибка при сохранении элемента {item.get('url', 'unknown')}: {str(e)}")
+                    session.rollback()
+                    continue
             
-            session.commit()
-            logger.info(f"Сохранено {saved_count} новых записей в БД")
+            if saved_count > 0 or updated_count > 0:
+                session.commit()
+                if saved_count > 0:
+                    logger.info(f"Сохранено {saved_count} новых записей в БД")
+                if updated_count > 0:
+                    logger.debug(f"Обновлено {updated_count} существующих записей в БД")
+            
             return saved_count
         except Exception as e:
             session.rollback()
-            logger.error(f"Ошибка при сохранении данных в БД: {str(e)}", exc_info=True)
+            error_msg = str(e).lower()
+            # Игнорируем ошибки дубликатов, если они уже обработаны выше
+            if 'unique constraint' not in error_msg and 'duplicate key' not in error_msg:
+                logger.error(f"Ошибка при сохранении данных в БД: {str(e)}", exc_info=True)
             raise
         finally:
             session.close()
